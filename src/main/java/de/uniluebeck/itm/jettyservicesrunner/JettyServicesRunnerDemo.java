@@ -28,11 +28,17 @@ public class JettyServicesRunnerDemo {
 				.getInstance(JettyServicesRunnerFactory.class);
 
 		final JettyServicesRunner runner = factory.create(new JettyServicesRunnerConfig(8888));
-		runner.startAndWait();
 
-		runner.publishJaxRsApplication("/rest/*", DemoRestApplication.class);
-		runner.publishJaxWsEndpoint("/soap/demo", new DemoSoapService());
-		runner.publishWebSocketServlet("/ws/*", new DemoWebSocketServlet());
+		runner.publishJaxRsApplication("/rest/v1.0/*", DemoRestApplication.class);
+		runner.publishJaxRsApplication("/rest/v2.0/*", DemoRestApplication.class);
+
+		runner.publishJaxWsEndpoint("/soap/v1.0", new DemoSoapService());
+		runner.publishJaxWsEndpoint("/soap/v2.0", new DemoSoapService());
+
+		runner.publishWebSocketServlet("/ws/v1.0/*", new DemoWebSocketServlet());
+		runner.publishWebSocketServlet("/ws/v2.0/*", new DemoWebSocketServlet());
+
+		runner.startAndWait();
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override

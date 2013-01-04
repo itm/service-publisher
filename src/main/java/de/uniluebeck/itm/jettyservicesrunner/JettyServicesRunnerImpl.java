@@ -1,28 +1,26 @@
 package de.uniluebeck.itm.jettyservicesrunner;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.Assisted;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
+import org.apache.jasper.servlet.JspServlet;
 import org.eclipse.jetty.http.spi.JettyHttpServerProvider;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.component.AbstractLifeCycle;
+import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Application;
 import javax.xml.ws.Endpoint;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 
 @Singleton
@@ -30,45 +28,37 @@ public class JettyServicesRunnerImpl extends AbstractService implements JettySer
 
 	private static final Logger log = LoggerFactory.getLogger(JettyServicesRunnerImpl.class);
 
+	private static final String HTTP_SERVER_PROVIDER = "com.sun.net.httpserver.HttpServerProvider";
+
 	private final JettyServicesRunnerConfig config;
 
 	private Server server;
 
 	private ServletContextHandler rootContext;
 
-	private ContextHandlerCollection contextHandlerCollection;
-
-	private final HttpServlet rootServlet = new HttpServlet() {
-		@Override
-		protected void doGet(final HttpServletRequest req, final HttpServletResponse resp)
-				throws ServletException, IOException {
-			resp.getWriter().write(Resources.toString(Resources.getResource("index.html"), Charsets.UTF_8));
-		}
-	};
-
-	private final HttpServlet helloServlet = new HttpServlet() {
-		private int invocations = 0;
-
-		@Override
-		protected void doGet(final HttpServletRequest req, final HttpServletResponse resp)
-				throws ServletException, IOException {
-			resp.getWriter().write("Hello, World! (for the " + (++invocations) + ". time!)");
-		}
-	};
-
-	private final HttpServlet byeServlet = new HttpServlet() {
-		private int invocations = 0;
-
-		@Override
-		protected void doGet(final HttpServletRequest req, final HttpServletResponse resp)
-				throws ServletException, IOException {
-			resp.getWriter().write("Bye, Cruel World! (for the " + (++invocations) + ". time!)");
-		}
-	};
-
 	@Inject
 	public JettyServicesRunnerImpl(@Assisted final JettyServicesRunnerConfig config) {
+
 		this.config = config;
+
+		server = new Server(InetSocketAddress.createUnresolved(config.hostname, config.port));
+
+		// set up JAX-WS support for Jetty
+		System.setProperty(HTTP_SERVER_PROVIDER, JettyHttpServerProvider.class.getCanonicalName());
+		JettyHttpServerProvider.setServer(server);
+
+		rootContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		rootContext.setSessionHandler(new SessionHandler());
+		rootContext.setContextPath("/");
+		rootContext.setResourceBase("src/main/webapp/");
+		rootContext.setClassLoader(Thread.currentThread().getContextClassLoader());
+		rootContext.addServlet(DefaultServlet.class, "/");
+		rootContext.addServlet(JspServlet.class, "*.jsp").setInitParameter("classpath", rootContext.getClassPath());
+
+		final ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection();
+		contextHandlerCollection.addHandler(rootContext);
+
+		server.setHandler(contextHandlerCollection);
 	}
 
 	@Override
@@ -96,38 +86,23 @@ public class JettyServicesRunnerImpl extends AbstractService implements JettySer
 
 		try {
 
-			server = new Server(InetSocketAddress.createUnresolved(config.hostname, config.port));
+			server.addLifeCycleListener(new AbstractLifeCycle.AbstractLifeCycleListener() {
+				@Override
+				public void lifeCycleStarted(final LifeCycle event) {
+					log.info("Started server on port {}", config.port);
+					notifyStarted();
+				}
 
-			// set up JAX-WS support for Jetty
-			System.setProperty(
-					"com.sun.net.httpserver.HttpServerProvider",
-					JettyHttpServerProvider.class.getCanonicalName()
+				@Override
+				public void lifeCycleFailure(final LifeCycle event, final Throwable cause) {
+					log.error("Failed to start server on port {} due to the following error: " + cause, cause);
+					notifyFailed(cause);
+				}
+			}
 			);
-			JettyHttpServerProvider.setServer(server);
-
-			rootContext = new ServletContextHandler();
-			rootContext.addServlet(new ServletHolder(rootServlet), "/");
-			rootContext.addServlet(new ServletHolder(helloServlet), "/hello");
-
-			contextHandlerCollection = new ContextHandlerCollection();
-			contextHandlerCollection.addHandler(rootContext);
-
-			server.setHandler(contextHandlerCollection);
 			server.start();
 
-			rootContext.addServlet(new ServletHolder(byeServlet), "/bye");
-
-			/*
-			final ServletContainer servletContainer = new ServletContainer(DemoRestApplication.class);
-			rootContext.addServlet(new ServletHolder(servletContainer), "/rest/*");
-			*/
-
-			log.info("Started server on port {}", config.port);
-
-			notifyStarted();
-
 		} catch (Exception e) {
-
 			log.error("Failed to start server on port {} due to the following error: " + e, e);
 			notifyFailed(e);
 		}

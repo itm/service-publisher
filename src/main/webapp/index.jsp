@@ -3,7 +3,7 @@
 <title>WebSocket Test</title>
 <script language="javascript" type="text/javascript">
 
-    var wsUri = "ws://localhost:8888/ws/";
+    var wsUri = "ws://<%= request.getServerName() %>:<%= request.getServerPort() %>/ws/v2.0/";
     var output;
 
     function init() {
@@ -13,18 +13,10 @@
 
     function testWebSocket() {
         websocket = new WebSocket(wsUri);
-        websocket.onopen = function(evt) {
-            onOpen(evt)
-        };
-        websocket.onclose = function(evt) {
-            onClose(evt)
-        };
-        websocket.onmessage = function(evt) {
-            onMessage(evt)
-        };
-        websocket.onerror = function(evt) {
-            onError(evt)
-        };
+        websocket.onopen    = function(evt) { onOpen(evt)    };
+        websocket.onclose   = function(evt) { onClose(evt)   };
+        websocket.onmessage = function(evt) { onMessage(evt) };
+        websocket.onerror   = function(evt) { onError(evt)   };
     }
 
     function onOpen(evt) {
@@ -60,6 +52,6 @@
     window.addEventListener("load", init, false);
 
 </script>
-<h2>WebSocket Test</h2>
+<h2>WebSocket Test @ <%= new java.util.Date() %></h2>
 <div id="output"></div>
 </html>
