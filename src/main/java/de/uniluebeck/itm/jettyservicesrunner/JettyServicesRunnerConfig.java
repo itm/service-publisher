@@ -2,7 +2,7 @@ package de.uniluebeck.itm.jettyservicesrunner;
 
 public class JettyServicesRunnerConfig {
 
-	public String hostname = null;
+	public String hostname = "localhost";
 
 	public int port = 8080;
 

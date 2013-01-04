@@ -1,17 +1,16 @@
 package de.uniluebeck.itm.jettyservicesrunner;
 
 import com.google.common.util.concurrent.Service;
-import com.google.inject.servlet.GuiceFilter;
-import org.eclipse.jetty.websocket.WebSocketHandler;
+import org.eclipse.jetty.websocket.WebSocketServlet;
+
+import javax.ws.rs.core.Application;
 
 public interface JettyServicesRunner extends Service {
 
-	void publishGuiceManaged(String contextPath, GuiceFilter guiceFilter);
-
 	void publishJaxWsEndpoint(String contextPath, Object endpointImpl);
 
-	void publishJaxRsResource(String contextPath, Object resourceImpl);
+	void publishJaxRsApplication(String contextPath, final Class<? extends Application> applicationClass);
 
-	void publishWebSocketServlet(String contextPath, WebSocketHandler webSocketHandler);
+	void publishWebSocketServlet(String contextPath, WebSocketServlet webSocketServlet);
 
 }
