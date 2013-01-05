@@ -54,7 +54,7 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 		rootContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		rootContext.setSessionHandler(new SessionHandler());
 		rootContext.setContextPath("/");
-		rootContext.setResourceBase("src/main/webapp/");
+		rootContext.setResourceBase(config.resourceBase);
 		rootContext.setClassLoader(Thread.currentThread().getContextClassLoader());
 		rootContext.addServlet(DefaultServlet.class, "/");
 		rootContext.addServlet(JspServlet.class, "*.jsp").setInitParameter("classpath", rootContext.getClassPath());
