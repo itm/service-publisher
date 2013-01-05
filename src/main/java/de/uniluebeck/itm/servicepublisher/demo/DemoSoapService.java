@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.jettyservicesrunner;
+package de.uniluebeck.itm.servicepublisher.demo;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;

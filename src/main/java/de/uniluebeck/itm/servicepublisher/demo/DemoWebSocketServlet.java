@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.jettyservicesrunner;
+package de.uniluebeck.itm.servicepublisher.demo;
 
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;

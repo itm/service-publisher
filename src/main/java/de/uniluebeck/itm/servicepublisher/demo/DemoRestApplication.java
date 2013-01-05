@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.jettyservicesrunner;
+package de.uniluebeck.itm.servicepublisher.demo;
 
 import com.google.common.collect.Sets;
 
