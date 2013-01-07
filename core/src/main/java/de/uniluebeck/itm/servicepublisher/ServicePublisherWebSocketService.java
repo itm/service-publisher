@@ -7,6 +7,8 @@ import org.eclipse.jetty.websocket.WebSocketServlet;
 
 public class ServicePublisherWebSocketService extends AbstractService {
 
+	private final ServicePublisher servicePublisher;
+
 	private final ServletContextHandler rootContext;
 
 	private final String contextPath;
@@ -15,9 +17,11 @@ public class ServicePublisherWebSocketService extends AbstractService {
 
 	private ServletHolder servletHolder;
 
-	public ServicePublisherWebSocketService(final ServletContextHandler rootContext,
+	ServicePublisherWebSocketService(final ServicePublisher servicePublisher,
+											final ServletContextHandler rootContext,
 											final String contextPath,
 											final WebSocketServlet webSocketServlet) {
+		this.servicePublisher = servicePublisher;
 		this.rootContext = rootContext;
 		this.contextPath = contextPath;
 		this.webSocketServlet = webSocketServlet;

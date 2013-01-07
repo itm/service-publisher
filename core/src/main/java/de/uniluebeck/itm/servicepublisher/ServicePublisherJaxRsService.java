@@ -9,6 +9,8 @@ import javax.ws.rs.core.Application;
 
 public class ServicePublisherJaxRsService extends AbstractService {
 
+	private final ServicePublisher servicePublisher;
+
 	private final ServletContextHandler rootContext;
 
 	private final String contextPath;
@@ -17,9 +19,11 @@ public class ServicePublisherJaxRsService extends AbstractService {
 
 	private ServletHolder servletHolder;
 
-	public ServicePublisherJaxRsService(final ServletContextHandler rootContext,
+	ServicePublisherJaxRsService(final ServicePublisher servicePublisher,
+										final ServletContextHandler rootContext,
 										final String contextPath,
 										final Class<? extends Application> applicationClass) {
+		this.servicePublisher = servicePublisher;
 		this.rootContext = rootContext;
 		this.contextPath = contextPath;
 		this.applicationClass = applicationClass;

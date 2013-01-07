@@ -11,8 +11,6 @@ import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.util.component.AbstractLifeCycle;
-import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +32,8 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 	private final ServicePublisherConfig config;
 
 	private final List<Service> servicesPublished = newArrayList();
+
+	private final List<Service> servicesUnpublished = newArrayList();
 
 	private Server server;
 
@@ -66,25 +66,13 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 
 	@Override
 	protected void doStart() {
-
 		try {
-
-			server.addLifeCycleListener(new AbstractLifeCycle.AbstractLifeCycleListener() {
-				@Override
-				public void lifeCycleStarted(final LifeCycle event) {
-					log.info("Started server on port {}", config.port);
-					notifyStarted();
-				}
-
-				@Override
-				public void lifeCycleFailure(final LifeCycle event, final Throwable cause) {
-					log.error("Failed to start server on port {} due to the following error: " + cause, cause);
-					notifyFailed(cause);
-				}
-			}
-			);
 			server.start();
-
+			for (Service service : newArrayList(servicesUnpublished)) {
+				service.startAndWait();
+			}
+			log.info("Started server on port {}", config.port);
+			notifyStarted();
 		} catch (Exception e) {
 			log.error("Failed to start server on port {} due to the following error: " + e, e);
 			notifyFailed(e);
@@ -93,7 +81,9 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 
 	@Override
 	protected void doStop() {
+		log.info("Stopping server on port {}", config.port);
 		try {
+			/*
 			for (Service service : newArrayList(servicesPublished)) {
 				try {
 					service.stopAndWait();
@@ -101,6 +91,7 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 					log.warn("Exception while shutting down service {}", service, e.getMessage());
 				}
 			}
+			*/
 			server.stop();
 			notifyStopped();
 		} catch (Exception e) {
@@ -120,10 +111,10 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 	public ServicePublisherJaxWsService createJaxWsService(final String contextPath, final Object endpointImpl) {
 		final ServicePublisherJaxWsService service = new ServicePublisherJaxWsService(
 				this,
-				rootContext,
 				contextPath,
 				endpointImpl
 		);
+		servicesUnpublished.add(service);
 		service.addListener(createServiceListener(service), sameThreadExecutor());
 		return service;
 	}
@@ -132,10 +123,12 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 	public ServicePublisherJaxRsService createJaxRsService(final String contextPath,
 														   final Class<? extends Application> applicationClass) {
 		final ServicePublisherJaxRsService service = new ServicePublisherJaxRsService(
+				this,
 				rootContext,
 				contextPath,
 				applicationClass
 		);
+		servicesUnpublished.add(service);
 		service.addListener(createServiceListener(service), sameThreadExecutor());
 		return service;
 	}
@@ -144,10 +137,12 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 	public ServicePublisherWebSocketService createWebSocketService(final String contextPath,
 																   final WebSocketServlet webSocketServlet) {
 		final ServicePublisherWebSocketService service = new ServicePublisherWebSocketService(
+				this,
 				rootContext,
 				contextPath,
 				webSocketServlet
 		);
+		servicesUnpublished.add(service);
 		service.addListener(createServiceListener(service), sameThreadExecutor());
 		return service;
 	}
@@ -162,7 +157,10 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 			@Override
 			public void running() {
 				synchronized (servicesPublished) {
-					servicesPublished.add(service);
+					synchronized (servicesUnpublished) {
+						servicesUnpublished.remove(service);
+						servicesPublished.add(service);
+					}
 				}
 			}
 
