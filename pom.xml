@@ -4,10 +4,10 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>de.uniluebeck.itm</groupId>
-	<artifactId>jetty-services-runner</artifactId>
-	<name>Jetty Services Runner</name>
-	<description>An embedded Jetty able to run WebSockets, JAX-RS and JAX-WS services</description>
+	<groupId>de.uniluebeck.itm.utils</groupId>
+	<artifactId>service-publisher</artifactId>
+	<name>Service Publisher</name>
+	<description>An embedded HTTP server able to host WebSockets, JAX-RS and JAX-WS services</description>
 	<version>1.0-SNAPSHOT</version>
 
 	<dependencies>
