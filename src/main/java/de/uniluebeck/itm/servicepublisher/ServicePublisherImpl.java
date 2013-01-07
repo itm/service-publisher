@@ -7,7 +7,6 @@ import com.google.inject.Singleton;
 import org.apache.jasper.servlet.JspServlet;
 import org.eclipse.jetty.http.spi.JettyHttpServerProvider;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -61,7 +60,6 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 
 		final ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection();
 		contextHandlerCollection.addHandler(rootContext);
-		contextHandlerCollection.addHandler(new ContextHandler()); // workaround for NPE bug
 
 		server.setHandler(contextHandlerCollection);
 	}
