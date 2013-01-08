@@ -15,8 +15,8 @@ public class ServicePublisherJaxWsService extends AbstractService {
 	private Endpoint endpoint;
 
 	ServicePublisherJaxWsService(final ServicePublisherImpl servicePublisher,
-										final String contextPath,
-										final Object endpointImpl) {
+								 final String contextPath,
+								 final Object endpointImpl) {
 		this.servicePublisher = servicePublisher;
 		this.contextPath = contextPath;
 		this.endpointImpl = endpointImpl;

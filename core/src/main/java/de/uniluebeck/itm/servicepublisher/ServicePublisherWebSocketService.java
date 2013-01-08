@@ -18,9 +18,9 @@ public class ServicePublisherWebSocketService extends AbstractService {
 	private ServletHolder servletHolder;
 
 	ServicePublisherWebSocketService(final ServicePublisher servicePublisher,
-											final ServletContextHandler rootContext,
-											final String contextPath,
-											final WebSocketServlet webSocketServlet) {
+									 final ServletContextHandler rootContext,
+									 final String contextPath,
+									 final WebSocketServlet webSocketServlet) {
 		this.servicePublisher = servicePublisher;
 		this.rootContext = rootContext;
 		this.contextPath = contextPath;

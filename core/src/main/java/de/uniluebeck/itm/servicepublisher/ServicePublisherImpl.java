@@ -108,7 +108,7 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 	}
 
 	@Override
-	public ServicePublisherJaxWsService createJaxWsService(final String contextPath, final Object endpointImpl) {
+	public Service createJaxWsService(final String contextPath, final Object endpointImpl) {
 		final ServicePublisherJaxWsService service = new ServicePublisherJaxWsService(
 				this,
 				contextPath,
@@ -120,8 +120,7 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 	}
 
 	@Override
-	public ServicePublisherJaxRsService createJaxRsService(final String contextPath,
-														   final Class<? extends Application> applicationClass) {
+	public Service createJaxRsService(final String contextPath, final Class<? extends Application> applicationClass) {
 		final ServicePublisherJaxRsService service = new ServicePublisherJaxRsService(
 				this,
 				rootContext,
@@ -134,8 +133,7 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 	}
 
 	@Override
-	public ServicePublisherWebSocketService createWebSocketService(final String contextPath,
-																   final WebSocketServlet webSocketServlet) {
+	public Service createWebSocketService(final String contextPath, final WebSocketServlet webSocketServlet) {
 		final ServicePublisherWebSocketService service = new ServicePublisherWebSocketService(
 				this,
 				rootContext,

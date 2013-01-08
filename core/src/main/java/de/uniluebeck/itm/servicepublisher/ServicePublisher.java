@@ -7,10 +7,10 @@ import javax.ws.rs.core.Application;
 
 public interface ServicePublisher extends Service {
 
-	ServicePublisherJaxWsService createJaxWsService(String contextPath, Object endpointImpl);
+	Service createJaxWsService(String contextPath, Object endpointImpl);
 
-	ServicePublisherJaxRsService createJaxRsService(String contextPath, Class<? extends Application> applicationClass);
+	Service createJaxRsService(String contextPath, Class<? extends Application> applicationClass);
 
-	ServicePublisherWebSocketService createWebSocketService(String contextPath, WebSocketServlet webSocketServlet);
+	Service createWebSocketService(String contextPath, WebSocketServlet webSocketServlet);
 
 }

@@ -20,9 +20,9 @@ public class ServicePublisherJaxRsService extends AbstractService {
 	private ServletHolder servletHolder;
 
 	ServicePublisherJaxRsService(final ServicePublisher servicePublisher,
-										final ServletContextHandler rootContext,
-										final String contextPath,
-										final Class<? extends Application> applicationClass) {
+								 final ServletContextHandler rootContext,
+								 final String contextPath,
+								 final Class<? extends Application> applicationClass) {
 		this.servicePublisher = servicePublisher;
 		this.rootContext = rootContext;
 		this.contextPath = contextPath;
