@@ -43,8 +43,7 @@ public class ServicePublisherJaxWsService extends AbstractService {
 	}
 
 	private String getAddress(final String contextPath) {
-		return "http://"
-				+ servicePublisher.getHostname() + ":" + servicePublisher.getPort()
-				+ (contextPath.startsWith("/") ? contextPath : "/" + contextPath);
+		return "http://localhost:" + servicePublisher.getPort() + (contextPath.startsWith("/") ? contextPath :
+				"/" + contextPath);
 	}
 }

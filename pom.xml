@@ -4,7 +4,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>de.uniluebeck.itm.utils</groupId>
+	<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
 	<artifactId>service-publisher-parent</artifactId>
 	<name>Service Publisher (parent)</name>
 	<description>An embedded HTTP server able to host WebSockets, JAX-RS and JAX-WS services</description>
@@ -18,14 +18,42 @@
 	</properties>
 
 	<modules>
-		<module>core</module>
+		<module>api</module>
+		<module>jetty-metro-jersey</module>
+		<module>cxf</module>
 		<module>demo</module>
 	</modules>
 
 	<dependencyManagement>
 		<dependencies>
 
+			<dependency>
+				<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+				<artifactId>service-publisher-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+				<artifactId>service-publisher-demo</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+				<artifactId>service-publisher-jetty-metro-jersey</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+				<artifactId>service-publisher-cxf</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
 			<!-- JAX-RS reference implementation (Jersey) -->
+			<dependency>
+				<groupId>javax.ws.rs</groupId>
+				<artifactId>jsr311-api</artifactId>
+				<version>1.1.1</version>
+			</dependency>
 			<dependency>
 				<groupId>com.sun.jersey</groupId>
 				<artifactId>jersey-server</artifactId>

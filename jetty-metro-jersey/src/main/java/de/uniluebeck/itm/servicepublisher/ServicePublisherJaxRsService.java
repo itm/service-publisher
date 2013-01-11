@@ -1,36 +1,34 @@
 package de.uniluebeck.itm.servicepublisher;
 
 import com.google.common.util.concurrent.AbstractService;
+import com.sun.jersey.spi.container.servlet.ServletContainer;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.websocket.WebSocketServlet;
 
-public class ServicePublisherWebSocketService extends AbstractService {
+import javax.ws.rs.core.Application;
 
-	private final ServicePublisher servicePublisher;
+public class ServicePublisherJaxRsService extends AbstractService {
 
 	private final ServletContextHandler rootContext;
 
 	private final String contextPath;
 
-	private final WebSocketServlet webSocketServlet;
+	private final Class<? extends Application> applicationClass;
 
 	private ServletHolder servletHolder;
 
-	ServicePublisherWebSocketService(final ServicePublisher servicePublisher,
-									 final ServletContextHandler rootContext,
-									 final String contextPath,
-									 final WebSocketServlet webSocketServlet) {
-		this.servicePublisher = servicePublisher;
+	ServicePublisherJaxRsService(final ServletContextHandler rootContext,
+								 final String contextPath,
+								 final Class<? extends Application> applicationClass) {
 		this.rootContext = rootContext;
 		this.contextPath = contextPath;
-		this.webSocketServlet = webSocketServlet;
+		this.applicationClass = applicationClass;
 	}
 
 	@Override
 	protected void doStart() {
 		try {
-			servletHolder = new ServletHolder(webSocketServlet);
+			servletHolder = new ServletHolder(new ServletContainer(applicationClass));
 			rootContext.addServlet(servletHolder, contextPath);
 			notifyStarted();
 		} catch (Exception e) {

@@ -1,9 +1,9 @@
 package de.uniluebeck.itm.servicepublisher.demo;
 
-import com.google.inject.Guice;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherModule;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule;
 import de.uniluebeck.itm.tr.util.Logging;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
@@ -18,20 +18,20 @@ public class Demo {
 		// Jersey uses java.util.logging - bridge to slf4
 		java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
 		Handler[] handlers = rootLogger.getHandlers();
-		for (int i = 0; i < handlers.length; i++) {
-			rootLogger.removeHandler(handlers[i]);
+		for (final Handler handler : handlers) {
+			rootLogger.removeHandler(handler);
 		}
 		SLF4JBridgeHandler.install();
 	}
 
 	public static void main(String[] args) throws InterruptedException {
 
-		final ServicePublisherConfig config = new ServicePublisherConfig(8888);
-		config.resourceBase = "demo/src/main/webapp";
+		final Class<ServicePublisherJettyMetroJerseyModule> moduleClass = ServicePublisherJettyMetroJerseyModule.class;
+		final int port = 8080;
+		final String resourceBase = "demo/src/main/webapp";
 
-		final ServicePublisher servicePublisher = Guice
-				.createInjector(new ServicePublisherModule(config))
-				.getInstance(ServicePublisher.class);
+		final ServicePublisherConfig config = new ServicePublisherConfig(port, moduleClass, resourceBase);
+		final ServicePublisher servicePublisher = ServicePublisherFactory.create(config);
 
 		servicePublisher.createJaxRsService("/rest/v1.0/*", DemoRestApplication.class);
 		servicePublisher.createJaxRsService("/rest/v2.0/*", DemoRestApplication2.class);

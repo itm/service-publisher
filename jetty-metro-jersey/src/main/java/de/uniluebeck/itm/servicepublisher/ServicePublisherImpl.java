@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Application;
-import java.net.InetSocketAddress;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -44,7 +43,7 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 
 		this.config = config;
 
-		server = new Server(InetSocketAddress.createUnresolved(config.hostname, config.port));
+		server = new Server(config.getPort());
 
 		// set up JAX-WS support for Jetty
 		System.setProperty(HTTP_SERVER_PROVIDER, JettyHttpServerProvider.class.getCanonicalName());
@@ -53,7 +52,7 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 		rootContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		rootContext.setSessionHandler(new SessionHandler());
 		rootContext.setContextPath("/");
-		rootContext.setResourceBase(config.resourceBase);
+		rootContext.setResourceBase(config.getResourceBase());
 		rootContext.setClassLoader(Thread.currentThread().getContextClassLoader());
 		rootContext.addServlet(DefaultServlet.class, "/");
 		rootContext.addServlet(JspServlet.class, "*.jsp").setInitParameter("classpath", rootContext.getClassPath());
@@ -71,7 +70,7 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 			for (Service service : newArrayList(servicesUnpublished)) {
 				service.startAndWait();
 			}
-			log.info("Started server on port {}", config.port);
+			log.info("Started server on port {}", config.getPort());
 			notifyStarted();
 		} catch (Exception e) {
 			log.error("Failed to start server on port {} due to the following error: " + e, e);
@@ -81,7 +80,7 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 
 	@Override
 	protected void doStop() {
-		log.info("Stopping server on port {}", config.port);
+		log.info("Stopping server on port {}", config.getPort());
 		try {
 			/*
 			for (Service service : newArrayList(servicesPublished)) {
@@ -99,12 +98,8 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 		}
 	}
 
-	String getHostname() {
-		return config.hostname;
-	}
-
 	int getPort() {
-		return config.port;
+		return config.getPort();
 	}
 
 	@Override
@@ -122,7 +117,6 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 	@Override
 	public Service createJaxRsService(final String contextPath, final Class<? extends Application> applicationClass) {
 		final ServicePublisherJaxRsService service = new ServicePublisherJaxRsService(
-				this,
 				rootContext,
 				contextPath,
 				applicationClass
@@ -135,7 +129,6 @@ class ServicePublisherImpl extends AbstractService implements ServicePublisher {
 	@Override
 	public Service createWebSocketService(final String contextPath, final WebSocketServlet webSocketServlet) {
 		final ServicePublisherWebSocketService service = new ServicePublisherWebSocketService(
-				this,
 				rootContext,
 				contextPath,
 				webSocketServlet

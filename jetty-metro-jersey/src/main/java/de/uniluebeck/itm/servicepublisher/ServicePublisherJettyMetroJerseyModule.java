@@ -3,11 +3,11 @@ package de.uniluebeck.itm.servicepublisher;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
-public class ServicePublisherModule extends AbstractModule {
+public class ServicePublisherJettyMetroJerseyModule extends AbstractModule {
 
 	private final ServicePublisherConfig config;
 
-	public ServicePublisherModule(final ServicePublisherConfig config) {
+	public ServicePublisherJettyMetroJerseyModule(final ServicePublisherConfig config) {
 		this.config = config;
 	}
 
