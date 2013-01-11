@@ -1,9 +1,11 @@
 package de.uniluebeck.itm.servicepublisher.demo;
 
+import com.google.inject.Module;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule;
+import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.util.Logging;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
@@ -26,7 +28,12 @@ public class Demo {
 
 	public static void main(String[] args) throws InterruptedException {
 
-		final Class<ServicePublisherJettyMetroJerseyModule> moduleClass = ServicePublisherJettyMetroJerseyModule.class;
+		final boolean useCxf = args.length > 0 && "cxf".equalsIgnoreCase(args[0]);
+
+		final Class<? extends Module> moduleClass = useCxf ?
+				ServicePublisherCxfModule.class :
+				ServicePublisherJettyMetroJerseyModule.class;
+
 		final int port = 8080;
 		final String resourceBase = "demo/src/main/webapp";
 
