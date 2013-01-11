@@ -13,22 +13,22 @@ public class ServicePublisherJaxRsService extends AbstractService {
 
 	private final String contextPath;
 
-	private final Class<? extends Application> applicationClass;
+	private final Application application;
 
 	private ServletHolder servletHolder;
 
 	ServicePublisherJaxRsService(final ServletContextHandler rootContext,
 								 final String contextPath,
-								 final Class<? extends Application> applicationClass) {
+								 final Application application) {
 		this.rootContext = rootContext;
 		this.contextPath = contextPath;
-		this.applicationClass = applicationClass;
+		this.application = application;
 	}
 
 	@Override
 	protected void doStart() {
 		try {
-			servletHolder = new ServletHolder(new ServletContainer(applicationClass));
+			servletHolder = new ServletHolder(new ServletContainer(application));
 			rootContext.addServlet(servletHolder, contextPath);
 			notifyStarted();
 		} catch (Exception e) {

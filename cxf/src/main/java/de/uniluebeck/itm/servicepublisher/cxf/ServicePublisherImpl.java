@@ -58,9 +58,8 @@ class ServicePublisherImpl extends ServicePublisherBase {
 	}
 
 	@Override
-	protected Service createJaxRsServiceInternal(final String contextPath,
-												 final Class<? extends Application> applicationClass) {
-		return new ServicePublisherJaxRsService(rootContext, contextPath, applicationClass);
+	protected Service createJaxRsServiceInternal(final String contextPath, final Application application) {
+		return new ServicePublisherJaxRsService(rootContext, contextPath, application);
 	}
 
 	@Override

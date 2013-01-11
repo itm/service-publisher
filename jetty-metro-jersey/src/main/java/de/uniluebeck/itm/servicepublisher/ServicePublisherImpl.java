@@ -37,7 +37,9 @@ class ServicePublisherImpl extends ServicePublisherBase {
 		rootContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		rootContext.setSessionHandler(new SessionHandler());
 		rootContext.setContextPath("/");
-		rootContext.setResourceBase(config.getResourceBase());
+		if (config.getResourceBase() != null) {
+			rootContext.setResourceBase(config.getResourceBase());
+		}
 		rootContext.setClassLoader(Thread.currentThread().getContextClassLoader());
 		rootContext.addServlet(DefaultServlet.class, "/");
 		rootContext.addServlet(JspServlet.class, "*.jsp").setInitParameter("classpath", rootContext.getClassPath());
@@ -73,9 +75,8 @@ class ServicePublisherImpl extends ServicePublisherBase {
 		return new ServicePublisherJaxWsService(this, contextPath, endpointImpl);
 	}
 
-	protected Service createJaxRsServiceInternal(final String contextPath,
-												 final Class<? extends Application> applicationClass) {
-		return new ServicePublisherJaxRsService(rootContext, contextPath, applicationClass);
+	protected Service createJaxRsServiceInternal(final String contextPath, final Application application) {
+		return new ServicePublisherJaxRsService(rootContext, contextPath, application);
 	}
 
 	protected Service createWebSocketServiceInternal(final String contextPath,

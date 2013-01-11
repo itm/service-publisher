@@ -40,8 +40,8 @@ public class Demo {
 		final ServicePublisherConfig config = new ServicePublisherConfig(port, moduleClass, resourceBase);
 		final ServicePublisher servicePublisher = ServicePublisherFactory.create(config);
 
-		servicePublisher.createJaxRsService("/rest/v1.0/*", DemoRestApplication.class);
-		servicePublisher.createJaxRsService("/rest/v2.0/*", DemoRestApplication2.class);
+		servicePublisher.createJaxRsService("/rest/v1.0/*", new DemoRestApplication());
+		servicePublisher.createJaxRsService("/rest/v2.0/*", new DemoRestApplication2());
 		servicePublisher.createJaxWsService("/soap/v1.0", new DemoSoapService());
 		servicePublisher.createJaxWsService("/soap/v2.0", new DemoSoapService2());
 		servicePublisher.createWebSocketService("/ws/v1.0/*", new DemoWebSocketServlet());

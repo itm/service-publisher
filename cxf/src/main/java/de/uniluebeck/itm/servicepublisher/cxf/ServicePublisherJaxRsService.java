@@ -20,14 +20,14 @@ class ServicePublisherJaxRsService extends AbstractService {
 
 	private final String contextPath;
 
-	private final Class<? extends Application> applicationClazz;
+	private final Application application;
 
 	public ServicePublisherJaxRsService(final ServletContextHandler rootContext,
 										final String contextPath,
-										final Class<? extends Application> applicationClazz) {
+										final Application application) {
 		this.rootContext = rootContext;
 		this.contextPath = contextPath;
-		this.applicationClazz = applicationClazz;
+		this.application = application;
 	}
 
 	@Override
@@ -40,7 +40,7 @@ class ServicePublisherJaxRsService extends AbstractService {
 			final ServletHolder servletHolder = new ServletHolder(new CXFNonSpringJaxrsServlet());
 
 			final Map<String, String> params = newHashMap();
-			params.put("javax.ws.rs.Application", applicationClazz.getCanonicalName());
+			params.put("javax.ws.rs.Application", application.getClass().getCanonicalName());
 			params.put("jaxrs.extensions", "xml=application/xml\njson=application/json");
 			servletHolder.setInitParameters(params);
 

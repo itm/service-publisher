@@ -9,7 +9,7 @@ public interface ServicePublisher extends Service {
 
 	Service createJaxWsService(String contextPath, Object endpointImpl);
 
-	Service createJaxRsService(String contextPath, Class<? extends Application> applicationClass);
+	Service createJaxRsService(String contextPath, Application application);
 
 	Service createWebSocketService(String contextPath, WebSocketServlet webSocketServlet);
 
