@@ -6,6 +6,10 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import javax.ws.rs.core.Application;
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.google.common.collect.Sets.newHashSet;
 
 public class ServicePublisherJaxRsService extends AbstractService {
 
@@ -28,7 +32,7 @@ public class ServicePublisherJaxRsService extends AbstractService {
 	@Override
 	protected void doStart() {
 		try {
-			servletHolder = new ServletHolder(new ServletContainer(application));
+			servletHolder = new ServletHolder(new ServletContainer(new ApplicationWrapper(application)));
 			rootContext.addServlet(servletHolder, contextPath);
 			notifyStarted();
 		} catch (Exception e) {
@@ -45,4 +49,26 @@ public class ServicePublisherJaxRsService extends AbstractService {
 			notifyFailed(e);
 		}
 	}
+
+	private static class ApplicationWrapper extends Application {
+
+		private final Application application;
+
+		private ApplicationWrapper(final Application application) {
+			this.application = application;
+		}
+
+		@Override
+		public Set<Class<?>> getClasses() {
+			final HashSet<Class<?>> applicationClasses = newHashSet(application.getClasses());
+			applicationClasses.add(ServicePublisherJsonMessageBodyWriter.class);
+			return applicationClasses;
+		}
+
+		@Override
+		public Set<Object> getSingletons() {
+			return application.getSingletons();
+		}
+	}
+
 }

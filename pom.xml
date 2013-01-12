@@ -111,6 +111,13 @@
 				<version>2.2.5</version>
 			</dependency>
 
+			<!-- Jackson for clean and fast JSON -->
+			<dependency>
+				<groupId>org.codehaus.jackson</groupId>
+				<artifactId>jackson-jaxrs</artifactId>
+				<version>1.9.11</version>
+			</dependency>
+
 			<!-- Jetty embedded HTTP server -->
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
