@@ -6,12 +6,15 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import javax.ws.rs.core.Application;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 
-public class ServicePublisherJaxRsService extends AbstractService {
+public class ServicePublisherJaxRsService extends AbstractService implements ServicePublisherService {
+
+	private final ServicePublisherImpl servicePublisher;
 
 	private final ServletContextHandler rootContext;
 
@@ -21,9 +24,11 @@ public class ServicePublisherJaxRsService extends AbstractService {
 
 	private ServletHolder servletHolder;
 
-	ServicePublisherJaxRsService(final ServletContextHandler rootContext,
+	ServicePublisherJaxRsService(final ServicePublisherImpl servicePublisher,
+								 final ServletContextHandler rootContext,
 								 final String contextPath,
 								 final Application application) {
+		this.servicePublisher = servicePublisher;
 		this.rootContext = rootContext;
 		this.contextPath = contextPath;
 		this.application = application;
@@ -48,6 +53,16 @@ public class ServicePublisherJaxRsService extends AbstractService {
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
+	}
+
+	private String getAddress(final String contextPath) {
+		return "http://localhost:" + servicePublisher.getPort() + (contextPath.startsWith("/") ? contextPath :
+				"/" + contextPath);
+	}
+
+	@Override
+	public URI getURI() {
+		return URI.create(getAddress(contextPath));
 	}
 
 	private static class ApplicationWrapper extends Application {

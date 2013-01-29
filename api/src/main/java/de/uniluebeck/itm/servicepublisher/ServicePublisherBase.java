@@ -57,34 +57,34 @@ public abstract class ServicePublisherBase extends AbstractService implements Se
 	protected abstract void doStopInternal() throws Exception;
 
 	@Override
-	public Service createJaxRsService(final String contextPath, final Application application) {
-		final Service service = createJaxRsServiceInternal(contextPath, application);
+	public ServicePublisherService createJaxRsService(final String contextPath, final Application application) {
+		final ServicePublisherService service = createJaxRsServiceInternal(contextPath, application);
 		servicesUnpublished.add(service);
 		service.addListener(createServiceListener(service), sameThreadExecutor());
 		return service;
 	}
 
-	protected abstract Service createJaxRsServiceInternal(final String contextPath, final Application application);
+	protected abstract ServicePublisherService createJaxRsServiceInternal(final String contextPath, final Application application);
 
 	@Override
-	public Service createJaxWsService(final String contextPath, final Object endpointImpl) {
-		final Service service = createJaxWsServiceInternal(contextPath, endpointImpl);
+	public ServicePublisherService createJaxWsService(final String contextPath, final Object endpointImpl) {
+		final ServicePublisherService service = createJaxWsServiceInternal(contextPath, endpointImpl);
 		servicesUnpublished.add(service);
 		service.addListener(createServiceListener(service), sameThreadExecutor());
 		return service;
 	}
 
-	protected abstract Service createJaxWsServiceInternal(final String contextPath, final Object endpointImpl);
+	protected abstract ServicePublisherService createJaxWsServiceInternal(final String contextPath, final Object endpointImpl);
 
 	@Override
-	public Service createWebSocketService(final String contextPath, final WebSocketServlet webSocketServlet) {
-		final Service service = createWebSocketServiceInternal(contextPath, webSocketServlet);
+	public ServicePublisherService createWebSocketService(final String contextPath, final WebSocketServlet webSocketServlet) {
+		final ServicePublisherService service = createWebSocketServiceInternal(contextPath, webSocketServlet);
 		servicesUnpublished.add(service);
 		service.addListener(createServiceListener(service), sameThreadExecutor());
 		return service;
 	}
 
-	protected abstract Service createWebSocketServiceInternal(final String contextPath,
+	protected abstract ServicePublisherService createWebSocketServiceInternal(final String contextPath,
 															  final WebSocketServlet webSocketServlet);
 
 	protected Service.Listener createServiceListener(final Service service) {

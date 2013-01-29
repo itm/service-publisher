@@ -3,8 +3,9 @@ package de.uniluebeck.itm.servicepublisher;
 import com.google.common.util.concurrent.AbstractService;
 
 import javax.xml.ws.Endpoint;
+import java.net.URI;
 
-public class ServicePublisherJaxWsService extends AbstractService {
+public class ServicePublisherJaxWsService extends AbstractService implements ServicePublisherService {
 
 	private final ServicePublisherImpl servicePublisher;
 
@@ -45,5 +46,10 @@ public class ServicePublisherJaxWsService extends AbstractService {
 	private String getAddress(final String contextPath) {
 		return "http://localhost:" + servicePublisher.getPort() + (contextPath.startsWith("/") ? contextPath :
 				"/" + contextPath);
+	}
+
+	@Override
+	public URI getURI() {
+		return URI.create(getAddress(contextPath));
 	}
 }

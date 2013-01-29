@@ -1,10 +1,10 @@
 package de.uniluebeck.itm.servicepublisher.cxf;
 
-import com.google.common.util.concurrent.Service;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherBase;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import org.apache.jasper.servlet.JspServlet;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.session.SessionHandler;
@@ -53,22 +53,22 @@ class ServicePublisherImpl extends ServicePublisherBase {
 	}
 
 	@Override
-	protected Service createJaxWsServiceInternal(final String contextPath, final Object endpointImpl) {
-		return new ServicePublisherJaxWsService(rootContext, getAddress(contextPath), endpointImpl);
+	protected ServicePublisherService createJaxWsServiceInternal(final String contextPath, final Object endpointImpl) {
+		return new ServicePublisherJaxWsService(this, rootContext, getAddress(contextPath), endpointImpl);
 	}
 
 	@Override
-	protected Service createJaxRsServiceInternal(final String contextPath, final Application application) {
-		return new ServicePublisherJaxRsService(rootContext, contextPath, application);
+	protected ServicePublisherService createJaxRsServiceInternal(final String contextPath, final Application application) {
+		return new ServicePublisherJaxRsService(this, rootContext, contextPath, application);
 	}
 
 	@Override
-	protected Service createWebSocketServiceInternal(final String contextPath,
+	protected ServicePublisherService createWebSocketServiceInternal(final String contextPath,
 													 final WebSocketServlet webSocketServlet) {
-		return new ServicePublisherWebSocketService(rootContext, contextPath, webSocketServlet);
+		return new ServicePublisherWebSocketService(this, rootContext, contextPath, webSocketServlet);
 	}
 
-	private String getAddress(final String contextPath) {
+	String getAddress(final String contextPath) {
 		return "http://localhost:" + config.getPort() + contextPath;
 	}
 }

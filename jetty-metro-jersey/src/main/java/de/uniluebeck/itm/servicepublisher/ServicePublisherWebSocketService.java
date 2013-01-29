@@ -5,7 +5,11 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
-public class ServicePublisherWebSocketService extends AbstractService {
+import java.net.URI;
+
+public class ServicePublisherWebSocketService extends AbstractService implements ServicePublisherService {
+
+	private final ServicePublisherImpl servicePublisher;
 
 	private final ServletContextHandler rootContext;
 
@@ -15,9 +19,11 @@ public class ServicePublisherWebSocketService extends AbstractService {
 
 	private ServletHolder servletHolder;
 
-	ServicePublisherWebSocketService(final ServletContextHandler rootContext,
+	ServicePublisherWebSocketService(final ServicePublisherImpl servicePublisher,
+									 final ServletContextHandler rootContext,
 									 final String contextPath,
 									 final WebSocketServlet webSocketServlet) {
+		this.servicePublisher = servicePublisher;
 		this.rootContext = rootContext;
 		this.contextPath = contextPath;
 		this.webSocketServlet = webSocketServlet;
@@ -42,5 +48,15 @@ public class ServicePublisherWebSocketService extends AbstractService {
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
+	}
+
+	private String getAddress(final String contextPath) {
+		return "http://localhost:" + servicePublisher.getPort() + (contextPath.startsWith("/") ? contextPath :
+				"/" + contextPath);
+	}
+
+	@Override
+	public URI getURI() {
+		return URI.create(getAddress(contextPath));
 	}
 }

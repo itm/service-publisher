@@ -1,10 +1,15 @@
 package de.uniluebeck.itm.servicepublisher.cxf;
 
 import com.google.common.util.concurrent.AbstractService;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-class ServicePublisherJaxWsService extends AbstractService {
+import java.net.URI;
+
+class ServicePublisherJaxWsService extends AbstractService implements ServicePublisherService {
+
+	private final ServicePublisherImpl servicePublisher;
 
 	private final ServletContextHandler rootContext;
 
@@ -14,8 +19,10 @@ class ServicePublisherJaxWsService extends AbstractService {
 
 	private ServletHolder cxfServletHolder;
 
-	public ServicePublisherJaxWsService(final ServletContextHandler rootContext, final String address,
+	public ServicePublisherJaxWsService(final ServicePublisherImpl servicePublisher,
+										final ServletContextHandler rootContext, final String address,
 										final Object endpointImpl) {
+		this.servicePublisher = servicePublisher;
 		this.rootContext = rootContext;
 		this.address = address;
 		this.endpointImpl = endpointImpl;
@@ -43,4 +50,8 @@ class ServicePublisherJaxWsService extends AbstractService {
 		}
 	}
 
+	@Override
+	public URI getURI() {
+		return URI.create(address);
+	}
 }

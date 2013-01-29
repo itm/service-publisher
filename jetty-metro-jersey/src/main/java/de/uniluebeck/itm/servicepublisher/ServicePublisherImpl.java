@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.servicepublisher;
 
-import com.google.common.util.concurrent.Service;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.apache.jasper.servlet.JspServlet;
@@ -71,16 +70,17 @@ class ServicePublisherImpl extends ServicePublisherBase {
 		return config.getPort();
 	}
 
-	protected Service createJaxWsServiceInternal(final String contextPath, final Object endpointImpl) {
+	protected ServicePublisherService createJaxWsServiceInternal(final String contextPath, final Object endpointImpl) {
 		return new ServicePublisherJaxWsService(this, contextPath, endpointImpl);
 	}
 
-	protected Service createJaxRsServiceInternal(final String contextPath, final Application application) {
-		return new ServicePublisherJaxRsService(rootContext, contextPath, application);
+	protected ServicePublisherService createJaxRsServiceInternal(final String contextPath,
+																 final Application application) {
+		return new ServicePublisherJaxRsService(this, rootContext, contextPath, application);
 	}
 
-	protected Service createWebSocketServiceInternal(final String contextPath,
-													 final WebSocketServlet webSocketServlet) {
-		return new ServicePublisherWebSocketService(rootContext, contextPath, webSocketServlet);
+	protected ServicePublisherService createWebSocketServiceInternal(final String contextPath,
+																	 final WebSocketServlet webSocketServlet) {
+		return new ServicePublisherWebSocketService(this, rootContext, contextPath, webSocketServlet);
 	}
 }
