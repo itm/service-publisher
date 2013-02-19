@@ -34,8 +34,8 @@ public class Demo {
 		final String resourceBase = "demo/src/main/webapp";
 		final ServicePublisherConfig config = new ServicePublisherConfig(port, resourceBase);
 		final Module module = useCxf ?
-				new ServicePublisherCxfModule(config) :
-				new ServicePublisherJettyMetroJerseyModule(config);
+				new ServicePublisherCxfModule() :
+				new ServicePublisherJettyMetroJerseyModule();
 
 		final ServicePublisherFactory factory = Guice.createInjector(module).getInstance(ServicePublisherFactory.class);
 		final ServicePublisher servicePublisher = factory.create(config);

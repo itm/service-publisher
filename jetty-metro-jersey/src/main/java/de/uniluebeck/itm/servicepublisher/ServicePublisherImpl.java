@@ -2,6 +2,7 @@ package de.uniluebeck.itm.servicepublisher;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.assistedinject.Assisted;
 import org.apache.jasper.servlet.JspServlet;
 import org.eclipse.jetty.http.spi.JettyHttpServerProvider;
 import org.eclipse.jetty.server.Server;
@@ -23,7 +24,7 @@ class ServicePublisherImpl extends ServicePublisherBase {
 	private ServletContextHandler rootContext;
 
 	@Inject
-	public ServicePublisherImpl(final ServicePublisherConfig config) {
+	public ServicePublisherImpl(@Assisted final ServicePublisherConfig config) {
 
 		super(config);
 
