@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.servicepublisher.demo;
 
+import com.google.inject.Guice;
 import com.google.inject.Module;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
@@ -29,16 +30,15 @@ public class Demo {
 	public static void main(String[] args) throws InterruptedException {
 
 		final boolean useCxf = args.length > 0 && "cxf".equalsIgnoreCase(args[0]);
-
-		final Class<? extends Module> moduleClass = useCxf ?
-				ServicePublisherCxfModule.class :
-				ServicePublisherJettyMetroJerseyModule.class;
-
 		final int port = 8080;
 		final String resourceBase = "demo/src/main/webapp";
+		final ServicePublisherConfig config = new ServicePublisherConfig(port, resourceBase);
+		final Module module = useCxf ?
+				new ServicePublisherCxfModule(config) :
+				new ServicePublisherJettyMetroJerseyModule(config);
 
-		final ServicePublisherConfig config = new ServicePublisherConfig(port, moduleClass, resourceBase);
-		final ServicePublisher servicePublisher = ServicePublisherFactory.create(config);
+		final ServicePublisherFactory factory = Guice.createInjector(module).getInstance(ServicePublisherFactory.class);
+		final ServicePublisher servicePublisher = factory.create(config);
 
 		servicePublisher.createJaxRsService("/rest/v1.0/*", new DemoRestApplication());
 		servicePublisher.createJaxRsService("/rest/v2.0/*", new DemoRestApplication2());
