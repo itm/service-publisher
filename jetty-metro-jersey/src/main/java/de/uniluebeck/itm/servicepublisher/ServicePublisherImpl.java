@@ -23,6 +23,8 @@ class ServicePublisherImpl extends ServicePublisherBase {
 
 	private ServletContextHandler rootContext;
 
+	private final ContextHandlerCollection contextHandlerCollection;
+
 	@Inject
 	public ServicePublisherImpl(@Assisted final ServicePublisherConfig config) {
 
@@ -38,13 +40,14 @@ class ServicePublisherImpl extends ServicePublisherBase {
 		rootContext.setSessionHandler(new SessionHandler());
 		rootContext.setContextPath("/");
 		if (config.getResourceBase() != null) {
+			log.info("Setting resource base: {}", config.getResourceBase());
 			rootContext.setResourceBase(config.getResourceBase());
 		}
 		rootContext.setClassLoader(Thread.currentThread().getContextClassLoader());
 		rootContext.addServlet(DefaultServlet.class, "/");
 		rootContext.addServlet(JspServlet.class, "*.jsp").setInitParameter("classpath", rootContext.getClassPath());
 
-		final ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection();
+		contextHandlerCollection = new ContextHandlerCollection();
 		contextHandlerCollection.addHandler(rootContext);
 
 		server.setHandler(contextHandlerCollection);
@@ -71,6 +74,10 @@ class ServicePublisherImpl extends ServicePublisherBase {
 		return config.getPort();
 	}
 
+	ContextHandlerCollection getContextHandlerCollection() {
+		return contextHandlerCollection;
+	}
+
 	protected ServicePublisherService createJaxWsServiceInternal(final String contextPath, final Object endpointImpl) {
 		return new ServicePublisherJaxWsService(this, contextPath, endpointImpl);
 	}
@@ -83,5 +90,10 @@ class ServicePublisherImpl extends ServicePublisherBase {
 	protected ServicePublisherService createWebSocketServiceInternal(final String contextPath,
 																	 final WebSocketServlet webSocketServlet) {
 		return new ServicePublisherWebSocketService(this, rootContext, contextPath, webSocketServlet);
+	}
+
+	@Override
+	public ServicePublisherService createServletService(final String contextPath, final String resourceBase) {
+		return new ServicePublisherServletService(this, rootContext, contextPath, resourceBase);
 	}
 }

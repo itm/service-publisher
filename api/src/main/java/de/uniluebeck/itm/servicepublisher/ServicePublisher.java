@@ -7,6 +7,8 @@ import javax.ws.rs.core.Application;
 
 public interface ServicePublisher extends Service {
 
+	ServicePublisherService createServletService(String contextPath, String resourceBase);
+
 	ServicePublisherService createJaxWsService(String contextPath, Object endpointImpl);
 
 	ServicePublisherService createJaxRsService(String contextPath, Application application);

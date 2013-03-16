@@ -31,7 +31,7 @@ public class Demo {
 
 		final boolean useCxf = args.length > 0 && "cxf".equalsIgnoreCase(args[0]);
 		final int port = 8080;
-		final String resourceBase = "demo/src/main/webapp";
+		final String resourceBase = Demo.class.getResource("/base").toString();
 		final ServicePublisherConfig config = new ServicePublisherConfig(port, resourceBase);
 		final Module module = useCxf ?
 				new ServicePublisherCxfModule() :
@@ -48,6 +48,8 @@ public class Demo {
 		servicePublisher.createWebSocketService("/ws/v2.0/*", new DemoWebSocketServlet());
 
 		servicePublisher.startAndWait();
+
+		servicePublisher.createServletService("/sub", Demo.class.getResource("/subcontext").toString()).startAndWait();
 
 		Runtime.getRuntime().addShutdownHook(
 				new Thread("Demo-ShutdownThread") {

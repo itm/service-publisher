@@ -11,11 +11,15 @@ import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.WebSocketServlet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Application;
 
 @Singleton
 class ServicePublisherImpl extends ServicePublisherBase {
+
+	private static final Logger log = LoggerFactory.getLogger(ServicePublisherImpl.class);
 
 	private org.eclipse.jetty.server.Server server;
 
@@ -32,7 +36,9 @@ class ServicePublisherImpl extends ServicePublisherBase {
 		rootContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		rootContext.setSessionHandler(new SessionHandler());
 		rootContext.setContextPath("/");
-		rootContext.setResourceBase("src/main/webapp/");
+		final String resourceBase = this.getClass().getResource("src/main/webapp/").toString();
+		log.info("Setting resource base: {}", resourceBase);
+		rootContext.setResourceBase(resourceBase);
 		rootContext.setClassLoader(Thread.currentThread().getContextClassLoader());
 		rootContext.addServlet(DefaultServlet.class, "/");
 		rootContext.addServlet(JspServlet.class, "*.jsp").setInitParameter("classpath", rootContext.getClassPath());
@@ -70,5 +76,10 @@ class ServicePublisherImpl extends ServicePublisherBase {
 
 	String getAddress(final String contextPath) {
 		return "http://localhost:" + config.getPort() + contextPath;
+	}
+
+	@Override
+	public ServicePublisherService createServletService(final String contextPath, final String resourceBase) {
+		throw new RuntimeException("TODO implement");
 	}
 }
