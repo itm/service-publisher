@@ -2,8 +2,11 @@ package de.uniluebeck.itm.servicepublisher;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Application;
 import java.net.URI;
@@ -14,22 +17,20 @@ import static com.google.common.collect.Sets.newHashSet;
 
 public class ServicePublisherJaxRsService extends AbstractService implements ServicePublisherService {
 
-	private final ServicePublisherImpl servicePublisher;
+	private static final Logger log = LoggerFactory.getLogger(ServicePublisherJaxRsService.class);
 
-	private final ServletContextHandler rootContext;
+	private final ServicePublisherImpl servicePublisher;
 
 	private final String contextPath;
 
 	private final Application application;
 
-	private ServletHolder servletHolder;
+	private ServletContextHandler contextHandler;
 
 	ServicePublisherJaxRsService(final ServicePublisherImpl servicePublisher,
-								 final ServletContextHandler rootContext,
 								 final String contextPath,
 								 final Application application) {
 		this.servicePublisher = servicePublisher;
-		this.rootContext = rootContext;
 		this.contextPath = contextPath;
 		this.application = application;
 	}
@@ -37,9 +38,23 @@ public class ServicePublisherJaxRsService extends AbstractService implements Ser
 	@Override
 	protected void doStart() {
 		try {
-			servletHolder = new ServletHolder(new ServletContainer(new ApplicationWrapper(application)));
-			rootContext.addServlet(servletHolder, contextPath);
+
+			final ServletHolder servletHolder =
+					new ServletHolder(new ServletContainer(new ApplicationWrapper(application)));
+
+			contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+			contextHandler.setSessionHandler(new SessionHandler());
+			contextHandler.setContextPath(contextPath);
+			contextHandler.setClassLoader(Thread.currentThread().getContextClassLoader());
+			contextHandler.addServlet(servletHolder, "/*");
+
+			servicePublisher.addHandler(contextHandler);
+			contextHandler.start();
+
+			log.info("Published JAX-RS service under: {}", contextPath);
+
 			notifyStarted();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
@@ -48,8 +63,11 @@ public class ServicePublisherJaxRsService extends AbstractService implements Ser
 	@Override
 	protected void doStop() {
 		try {
-			servletHolder.stop();
+
+			servicePublisher.removeHandler(contextHandler);
+
 			notifyStopped();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}

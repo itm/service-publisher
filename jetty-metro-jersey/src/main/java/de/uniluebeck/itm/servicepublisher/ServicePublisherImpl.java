@@ -3,12 +3,9 @@ package de.uniluebeck.itm.servicepublisher;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.Assisted;
-import org.apache.jasper.servlet.JspServlet;
 import org.eclipse.jetty.http.spi.JettyHttpServerProvider;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
@@ -20,8 +17,6 @@ class ServicePublisherImpl extends ServicePublisherBase {
 	private static final String HTTP_SERVER_PROVIDER = "com.sun.net.httpserver.HttpServerProvider";
 
 	private Server server;
-
-	private ServletContextHandler rootContext;
 
 	private final ContextHandlerCollection contextHandlerCollection;
 
@@ -36,19 +31,7 @@ class ServicePublisherImpl extends ServicePublisherBase {
 		System.setProperty(HTTP_SERVER_PROVIDER, JettyHttpServerProvider.class.getCanonicalName());
 		JettyHttpServerProvider.setServer(server);
 
-		rootContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		rootContext.setSessionHandler(new SessionHandler());
-		rootContext.setContextPath("/");
-		if (config.getResourceBase() != null) {
-			log.info("Setting resource base: {}", config.getResourceBase());
-			rootContext.setResourceBase(config.getResourceBase());
-		}
-		rootContext.setClassLoader(Thread.currentThread().getContextClassLoader());
-		rootContext.addServlet(DefaultServlet.class, "/");
-		rootContext.addServlet(JspServlet.class, "*.jsp").setInitParameter("classpath", rootContext.getClassPath());
-
 		contextHandlerCollection = new ContextHandlerCollection();
-		contextHandlerCollection.addHandler(rootContext);
 
 		server.setHandler(contextHandlerCollection);
 	}
@@ -74,26 +57,29 @@ class ServicePublisherImpl extends ServicePublisherBase {
 		return config.getPort();
 	}
 
-	ContextHandlerCollection getContextHandlerCollection() {
-		return contextHandlerCollection;
-	}
-
 	protected ServicePublisherService createJaxWsServiceInternal(final String contextPath, final Object endpointImpl) {
 		return new ServicePublisherJaxWsService(this, contextPath, endpointImpl);
 	}
 
 	protected ServicePublisherService createJaxRsServiceInternal(final String contextPath,
 																 final Application application) {
-		return new ServicePublisherJaxRsService(this, rootContext, contextPath, application);
+		return new ServicePublisherJaxRsService(this, contextPath, application);
 	}
 
 	protected ServicePublisherService createWebSocketServiceInternal(final String contextPath,
 																	 final WebSocketServlet webSocketServlet) {
-		return new ServicePublisherWebSocketService(this, rootContext, contextPath, webSocketServlet);
+		return new ServicePublisherWebSocketService(this, contextPath, webSocketServlet);
 	}
 
-	@Override
-	public ServicePublisherService createServletService(final String contextPath, final String resourceBase) {
-		return new ServicePublisherServletService(this, rootContext, contextPath, resourceBase);
+	public ServicePublisherService createServletServiceInternal(final String contextPath, final String resourceBase) {
+		return new ServicePublisherServletService(this, contextPath, resourceBase);
+	}
+
+	void addHandler(final ServletContextHandler context) {
+		contextHandlerCollection.addHandler(context);
+	}
+
+	void removeHandler(final ServletContextHandler context) {
+		contextHandlerCollection.removeHandler(context);
 	}
 }

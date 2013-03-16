@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.servicepublisher;
 
 import com.google.common.util.concurrent.AbstractService;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.WebSocketServlet;
@@ -11,20 +12,16 @@ public class ServicePublisherWebSocketService extends AbstractService implements
 
 	private final ServicePublisherImpl servicePublisher;
 
-	private final ServletContextHandler rootContext;
-
 	private final String contextPath;
 
 	private final WebSocketServlet webSocketServlet;
 
-	private ServletHolder servletHolder;
+	private ServletContextHandler contextHandler;
 
 	ServicePublisherWebSocketService(final ServicePublisherImpl servicePublisher,
-									 final ServletContextHandler rootContext,
 									 final String contextPath,
 									 final WebSocketServlet webSocketServlet) {
 		this.servicePublisher = servicePublisher;
-		this.rootContext = rootContext;
 		this.contextPath = contextPath;
 		this.webSocketServlet = webSocketServlet;
 	}
@@ -32,9 +29,21 @@ public class ServicePublisherWebSocketService extends AbstractService implements
 	@Override
 	protected void doStart() {
 		try {
-			servletHolder = new ServletHolder(webSocketServlet);
-			rootContext.addServlet(servletHolder, contextPath);
+
+			final ServletHolder servletHolder = new ServletHolder(webSocketServlet);
+
+			contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+			contextHandler.setSessionHandler(new SessionHandler());
+			contextHandler.setContextPath(contextPath);
+			contextHandler.setClassLoader(Thread.currentThread().getContextClassLoader());
+			contextHandler.addServlet(servletHolder, "/*");
+
+			servicePublisher.addHandler(contextHandler);
+
+			contextHandler.start();
+
 			notifyStarted();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
@@ -43,8 +52,11 @@ public class ServicePublisherWebSocketService extends AbstractService implements
 	@Override
 	protected void doStop() {
 		try {
-			servletHolder.stop();
+
+			servicePublisher.removeHandler(contextHandler);
+
 			notifyStopped();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}

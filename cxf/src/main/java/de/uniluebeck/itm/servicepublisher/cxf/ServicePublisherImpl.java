@@ -74,12 +74,12 @@ class ServicePublisherImpl extends ServicePublisherBase {
 		return new ServicePublisherWebSocketService(this, rootContext, contextPath, webSocketServlet);
 	}
 
-	String getAddress(final String contextPath) {
-		return "http://localhost:" + config.getPort() + contextPath;
+	@Override
+	public ServicePublisherService createServletServiceInternal(final String contextPath, final String resourceBase) {
+		throw new RuntimeException("TODO implement");
 	}
 
-	@Override
-	public ServicePublisherService createServletService(final String contextPath, final String resourceBase) {
-		throw new RuntimeException("TODO implement");
+	String getAddress(final String contextPath) {
+		return "http://localhost:" + config.getPort() + contextPath;
 	}
 }

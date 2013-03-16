@@ -57,6 +57,16 @@ public abstract class ServicePublisherBase extends AbstractService implements Se
 	protected abstract void doStopInternal() throws Exception;
 
 	@Override
+	public ServicePublisherService createServletService(final String contextPath, final String resourceBase) {
+		final ServicePublisherService service = createServletServiceInternal(contextPath, resourceBase);
+		servicesUnpublished.add(service);
+		service.addListener(createServiceListener(service), sameThreadExecutor());
+		return service;
+	}
+
+	protected abstract ServicePublisherService createServletServiceInternal(String contextPath, String resourceBase);
+
+	@Override
 	public ServicePublisherService createJaxRsService(final String contextPath, final Application application) {
 		final ServicePublisherService service = createJaxRsServiceInternal(contextPath, application);
 		servicesUnpublished.add(service);

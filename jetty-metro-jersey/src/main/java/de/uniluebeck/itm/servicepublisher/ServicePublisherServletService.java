@@ -16,20 +16,16 @@ public class ServicePublisherServletService extends AbstractService implements S
 
 	private final ServicePublisherImpl servicePublisher;
 
-	private final ServletContextHandler rootContext;
-
 	private final String contextPath;
 
 	private final String resourceBase;
 
-	private ServletContextHandler context;
+	private ServletContextHandler contextHandler;
 
 	public ServicePublisherServletService(final ServicePublisherImpl servicePublisher,
-										  final ServletContextHandler rootContext,
 										  final String contextPath,
 										  final String resourceBase) {
 		this.servicePublisher = servicePublisher;
-		this.rootContext = rootContext;
 		this.contextPath = contextPath;
 		this.resourceBase = resourceBase;
 	}
@@ -38,16 +34,18 @@ public class ServicePublisherServletService extends AbstractService implements S
 	protected void doStart() {
 		try {
 
-			context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-			context.setSessionHandler(new SessionHandler());
-			context.setContextPath(contextPath);
-			context.setResourceBase(resourceBase);
-			context.setClassLoader(Thread.currentThread().getContextClassLoader());
-			context.addServlet(DefaultServlet.class, "/");
-			context.addServlet(JspServlet.class, "*.jsp").setInitParameter("classpath", rootContext.getClassPath());
-
-			servicePublisher.getContextHandlerCollection().addHandler(context);
-			context.start();
+			contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+			contextHandler.setSessionHandler(new SessionHandler());
+			contextHandler.setContextPath(contextPath);
+			contextHandler.setResourceBase(resourceBase);
+			contextHandler.setClassLoader(Thread.currentThread().getContextClassLoader());
+			contextHandler.addServlet(DefaultServlet.class, "/");
+			contextHandler.addServlet(JspServlet.class, "*.jsp").setInitParameter(
+					"classpath",
+					contextHandler.getClassPath()
+			);
+			servicePublisher.addHandler(contextHandler);
+			contextHandler.start();
 
 			log.info("Published servlet service under {} with resource base: {}", contextPath, resourceBase);
 
@@ -62,7 +60,11 @@ public class ServicePublisherServletService extends AbstractService implements S
 	protected void doStop() {
 		try {
 
-			servicePublisher.getContextHandlerCollection().removeHandler(context);
+			if ("/".equals(contextPath)) {
+				log.warn("Not possible to remove paths from resource collection currently.");
+			} else {
+				servicePublisher.removeHandler(contextHandler);
+			}
 
 			notifyStopped();
 
