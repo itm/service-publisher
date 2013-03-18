@@ -10,16 +10,13 @@ import javax.xml.ws.Endpoint;
 
 public class ServicePublisherCxfServlet extends CXFNonSpringServlet {
 
+	private static final Logger log = LoggerFactory.getLogger(ServicePublisherCxfServlet.class);
+
 	private final String address;
 
 	private final Object endpointImpl;
 
-	private Logger logger = LoggerFactory.getLogger(ServicePublisherCxfServlet.class);
-
-	private Endpoint endpoint;
-
 	public ServicePublisherCxfServlet(final String address, final Object endpointImpl) {
-		super();
 		this.address = address;
 		this.endpointImpl = endpointImpl;
 	}
@@ -27,12 +24,8 @@ public class ServicePublisherCxfServlet extends CXFNonSpringServlet {
 	@Override
 	public void loadBus(ServletConfig servletConfig) {
 		super.loadBus(servletConfig);
-		logger.info("Loading CXF servlet...");
+		log.info("Loading CXF servlet...");
 		BusFactory.setDefaultBus(this.getBus());
-		endpoint = Endpoint.publish(address, endpointImpl);
-	}
-
-	public Endpoint getEndpoint() {
-		return endpoint;
+		Endpoint.publish(address, endpointImpl);
 	}
 }

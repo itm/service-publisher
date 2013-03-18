@@ -43,10 +43,10 @@
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
 			<artifactId>service-publisher-api</artifactId>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
 			<artifactId>service-publisher-jetty-metro-jersey</artifactId>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
 			<artifactId>service-publisher-cxf</artifactId>

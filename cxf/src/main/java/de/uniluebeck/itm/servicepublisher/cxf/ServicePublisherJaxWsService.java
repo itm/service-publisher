@@ -2,38 +2,32 @@ package de.uniluebeck.itm.servicepublisher.cxf;
 
 import com.google.common.util.concurrent.AbstractService;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 
+import javax.xml.ws.Endpoint;
 import java.net.URI;
 
 class ServicePublisherJaxWsService extends AbstractService implements ServicePublisherService {
 
 	private final ServicePublisherImpl servicePublisher;
 
-	private final ServletContextHandler rootContext;
-
-	private final String address;
+	private final String contextPath;
 
 	private final Object endpointImpl;
 
-	private ServletHolder cxfServletHolder;
+	private Endpoint endpoint;
 
 	public ServicePublisherJaxWsService(final ServicePublisherImpl servicePublisher,
-										final ServletContextHandler rootContext, final String address,
+										final String contextPath,
 										final Object endpointImpl) {
 		this.servicePublisher = servicePublisher;
-		this.rootContext = rootContext;
-		this.address = address;
+		this.contextPath = contextPath;
 		this.endpointImpl = endpointImpl;
 	}
 
 	@Override
 	protected void doStart() {
 		try {
-			final ServicePublisherCxfServlet cxfServlet = new ServicePublisherCxfServlet(address, endpointImpl);
-			cxfServletHolder = new ServletHolder(cxfServlet);
-			rootContext.addServlet(cxfServletHolder, "/");
+			endpoint = Endpoint.publish(contextPath.substring(5), endpointImpl);
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -43,7 +37,7 @@ class ServicePublisherJaxWsService extends AbstractService implements ServicePub
 	@Override
 	protected void doStop() {
 		try {
-			cxfServletHolder.stop();
+			endpoint.stop();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -52,6 +46,6 @@ class ServicePublisherJaxWsService extends AbstractService implements ServicePub
 
 	@Override
 	public URI getURI() {
-		return URI.create(address);
+		return URI.create(servicePublisher.getAddress(contextPath));
 	}
 }

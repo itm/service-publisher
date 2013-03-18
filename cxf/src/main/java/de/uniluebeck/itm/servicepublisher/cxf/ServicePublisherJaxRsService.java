@@ -3,6 +3,7 @@ package de.uniluebeck.itm.servicepublisher.cxf;
 import com.google.common.util.concurrent.AbstractService;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
@@ -20,18 +21,16 @@ class ServicePublisherJaxRsService extends AbstractService implements ServicePub
 
 	private final ServicePublisherImpl servicePublisher;
 
-	private final ServletContextHandler rootContext;
-
 	private final String contextPath;
 
 	private final Application application;
 
+	private ServletContextHandler contextHandler;
+
 	public ServicePublisherJaxRsService(final ServicePublisherImpl servicePublisher,
-										final ServletContextHandler rootContext,
 										final String contextPath,
 										final Application application) {
 		this.servicePublisher = servicePublisher;
-		this.rootContext = rootContext;
 		this.contextPath = contextPath;
 		this.application = application;
 	}
@@ -50,17 +49,19 @@ class ServicePublisherJaxRsService extends AbstractService implements ServicePub
 			params.put("jaxrs.extensions", "xml=application/xml\njson=application/json");
 			servletHolder.setInitParameters(params);
 
-			rootContext.addServlet(servletHolder, contextPath);
+			contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+			contextHandler.setSessionHandler(new SessionHandler());
+			contextHandler.setContextPath(contextPath);
+			contextHandler.setClassLoader(Thread.currentThread().getContextClassLoader());
+			contextHandler.addServlet(servletHolder, "/*");
 
-			/*
-			JAXRSServerFactoryBean serverFactoryBean = new JAXRSServerFactoryBean();
-			serverFactoryBean.setResourceClasses(applicationClazz);
-			serverFactoryBean.setResourceProvider(applicationClazz, new SingletonResourceProvider(instance));
-			serverFactoryBean.setAddress(getAddress(contextPath));
-			serverFactoryBean.create();
-			*/
+			servicePublisher.addHandler(contextHandler);
+			contextHandler.start();
+
+			servicePublisher.addHandler(contextHandler);
 
 			notifyStarted();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
@@ -72,7 +73,11 @@ class ServicePublisherJaxRsService extends AbstractService implements ServicePub
 		log.trace("ServicePublisherImpl$ServicePublisherJaxRsService.doStop()");
 
 		try {
+
+			servicePublisher.removeHandler(contextHandler);
+
 			notifyStopped();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
