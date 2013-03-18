@@ -9,8 +9,11 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.ws.rs.core.Application;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -42,7 +45,16 @@ class ServicePublisherJaxRsService extends AbstractService implements ServicePub
 
 		try {
 
-			final ServletHolder servletHolder = new ServletHolder(new CXFNonSpringJaxrsServlet());
+			final CXFNonSpringJaxrsServlet jaxrsServlet = new CXFNonSpringJaxrsServlet() {
+				@Override
+				protected Object createSingletonInstance(final Class<?> cls, final Map<String, List<String>> props,
+														 final ServletConfig sc) throws ServletException {
+					// workaround to not have CXF try to create the application instance but pass in one
+					return application;
+				}
+			};
+
+			final ServletHolder servletHolder = new ServletHolder(jaxrsServlet);
 
 			final Map<String, String> params = newHashMap();
 			params.put("javax.ws.rs.Application", application.getClass().getCanonicalName());
