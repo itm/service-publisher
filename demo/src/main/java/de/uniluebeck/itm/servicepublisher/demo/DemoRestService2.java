@@ -7,8 +7,8 @@ import javax.ws.rs.Path;
 public class DemoRestService2 {
 
 	@GET
-	public String get() {
-		return "got me 2!";
+	public DemoDto get() {
+		return new DemoDto();
 	}
 
 }

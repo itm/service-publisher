@@ -7,7 +7,7 @@ import javax.jws.WebService;
 public class DemoSoapService2 {
 
 	@WebMethod
-	public int addNumbers(int a, int b) {
-		return a + b;
+	public DemoDto getDto() {
+		return new DemoDto();
 	}
 }

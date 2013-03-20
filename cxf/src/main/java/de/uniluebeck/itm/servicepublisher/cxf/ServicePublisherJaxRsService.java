@@ -2,6 +2,7 @@ package de.uniluebeck.itm.servicepublisher.cxf;
 
 import com.google.common.util.concurrent.AbstractService;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import org.apache.cxf.jaxrs.provider.json.JSONProvider;
 import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -59,6 +60,7 @@ class ServicePublisherJaxRsService extends AbstractService implements ServicePub
 			final Map<String, String> params = newHashMap();
 			params.put("javax.ws.rs.Application", application.getClass().getCanonicalName());
 			params.put("jaxrs.extensions", "xml=application/xml\njson=application/json");
+			params.put("jaxrs.providers", JSONProvider.class.getCanonicalName());
 			servletHolder.setInitParameters(params);
 
 			contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);

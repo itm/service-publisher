@@ -19,7 +19,7 @@
 
 	<modules>
 		<module>api</module>
-		<module>jetty-metro-jersey</module>
+		<!--<module>jetty-metro-jersey</module>-->
 		<module>cxf</module>
 		<module>demo</module>
 	</modules>
