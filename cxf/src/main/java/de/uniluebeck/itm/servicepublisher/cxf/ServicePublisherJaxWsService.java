@@ -38,7 +38,7 @@ class ServicePublisherJaxWsService extends AbstractService implements ServicePub
 	protected void doStop() {
 		try {
 			endpoint.stop();
-			notifyStarted();
+			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
