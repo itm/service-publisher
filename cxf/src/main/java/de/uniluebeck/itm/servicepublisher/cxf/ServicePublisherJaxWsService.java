@@ -2,7 +2,14 @@ package de.uniluebeck.itm.servicepublisher.cxf;
 
 import com.google.common.util.concurrent.AbstractService;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
+import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.xml.ws.Endpoint;
 import java.net.URI;
 
@@ -27,7 +34,25 @@ class ServicePublisherJaxWsService extends AbstractService implements ServicePub
 	@Override
 	protected void doStart() {
 		try {
-			endpoint = Endpoint.publish(contextPath.substring(5), endpointImpl);
+
+			ServletContextHandler context = new ServletContextHandler();
+			context.setContextPath(contextPath);
+			context.setSessionHandler(new SessionHandler());
+
+			CXFNonSpringServlet cxfServlet = new CXFNonSpringServlet() {
+				@Override
+				public void init(final ServletConfig sc) throws ServletException {
+					super.init(sc);
+					BusFactory.setDefaultBus(getBus());
+				}
+			};
+			context.addServlet(new ServletHolder(cxfServlet), "/*");
+
+			servicePublisher.addHandler(context);
+			context.start();
+
+			endpoint = Endpoint.publish("/", endpointImpl);
+
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
