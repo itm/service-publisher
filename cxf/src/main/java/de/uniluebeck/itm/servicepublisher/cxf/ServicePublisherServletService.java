@@ -6,6 +6,7 @@ import org.apache.jasper.servlet.JspServlet;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.util.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,9 @@ public class ServicePublisherServletService extends AbstractService implements S
 	@Override
 	protected void doStart() {
 		try {
+
+			// workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=364936
+			Resource.setDefaultUseCaches(false);
 
 			contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 			contextHandler.setSessionHandler(new SessionHandler());
