@@ -40,6 +40,10 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>javax.ws.rs-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
 			<artifactId>service-publisher-api</artifactId>
 		</dependency>

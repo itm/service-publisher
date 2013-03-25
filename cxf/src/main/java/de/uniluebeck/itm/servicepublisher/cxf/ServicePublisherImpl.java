@@ -10,15 +10,11 @@ import org.apache.cxf.BusFactory;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.WebSocketServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Application;
 
 @Singleton
 class ServicePublisherImpl extends ServicePublisherBase {
-
-	private static final Logger log = LoggerFactory.getLogger(ServicePublisherImpl.class);
 
 	private final ContextHandlerCollection contextHandlerCollection;
 
