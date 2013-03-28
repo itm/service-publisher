@@ -35,8 +35,8 @@ public class Demo {
 		servicePublisher.createJaxRsService("/rest/v1.0", new DemoRestApplication());
 		servicePublisher.createJaxRsService("/rest/v2.0", new DemoRestApplication2());
 
-		servicePublisher.createJaxWsService("/soap/v1.0", new DemoSoapService());
-		servicePublisher.createJaxWsService("/soap/v2.0", new DemoSoapService2());
+		servicePublisher.createJaxWsService("/v1.0", new DemoSoapService());
+		servicePublisher.createJaxWsService("/v2.0", new DemoSoapService2());
 
 		servicePublisher.createWebSocketService("/ws/v1.0", new DemoWebSocketServlet());
 		servicePublisher.createWebSocketService("/ws/v2.0", new DemoWebSocketServlet());

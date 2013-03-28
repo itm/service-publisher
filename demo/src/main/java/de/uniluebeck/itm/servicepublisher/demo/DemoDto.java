@@ -7,4 +7,10 @@ public class DemoDto {
 
 	public String name = "myName";
 
+	@Override
+	public String toString() {
+		return "DemoDto{" +
+				"name='" + name + '\'' +
+				'}';
+	}
 }
