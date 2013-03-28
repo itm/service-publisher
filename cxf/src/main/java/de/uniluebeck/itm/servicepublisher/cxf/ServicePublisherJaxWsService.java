@@ -48,6 +48,6 @@ class ServicePublisherJaxWsService extends AbstractService implements ServicePub
 
 	@Override
 	public URI getURI() {
-		return URI.create(servicePublisher.getAddress(contextPath));
+		return URI.create(servicePublisher.getAddress("/soap" + contextPath));
 	}
 }
