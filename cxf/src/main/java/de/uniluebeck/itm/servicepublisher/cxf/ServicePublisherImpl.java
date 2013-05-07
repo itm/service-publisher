@@ -67,7 +67,8 @@ class ServicePublisherImpl extends ServicePublisherBase {
 	}
 
 	@Override
-	protected ServicePublisherService createJaxWsServiceInternal(final String contextPath, final Object endpointImpl) {
+	protected ServicePublisherService createJaxWsServiceInternal(String contextPath, final Object endpointImpl) {
+		contextPath = contextPath.startsWith("/soap") ? contextPath.substring("/soap".length()) : contextPath;
 		return new ServicePublisherJaxWsService(this, contextPath, endpointImpl);
 	}
 
