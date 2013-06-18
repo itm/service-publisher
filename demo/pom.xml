@@ -56,12 +56,8 @@
 			<artifactId>service-publisher-cxf</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jul-to-slf4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm.itmutils</groupId>
-			<artifactId>itmutils</artifactId>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>logging</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>

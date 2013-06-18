@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.servicepublisher.demo;
 
-import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.util.logging.Logging;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.provider.json.JSONProvider;
 

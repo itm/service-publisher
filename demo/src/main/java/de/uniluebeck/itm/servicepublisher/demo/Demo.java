@@ -6,7 +6,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
-import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.util.logging.Logging;
 
 public class Demo {
 
