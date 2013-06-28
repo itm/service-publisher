@@ -43,6 +43,9 @@ class ServicePublisherJaxRsService extends AbstractService implements ServicePub
 	protected void doStart() {
 
 		log.trace("ServicePublisherImpl$ServicePublisherJaxRsService.doStart()");
+		log.info(
+				"Publishing REST service {} with context path {}", application.getClass().getSimpleName(), contextPath
+		);
 
 		try {
 

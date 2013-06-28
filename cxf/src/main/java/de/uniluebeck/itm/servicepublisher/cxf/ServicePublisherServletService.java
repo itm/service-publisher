@@ -6,11 +6,14 @@ import org.apache.jasper.servlet.JspServlet;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.net.URI;
+import java.util.Map;
 
 public class ServicePublisherServletService extends AbstractService implements ServicePublisherService {
 
@@ -22,14 +25,19 @@ public class ServicePublisherServletService extends AbstractService implements S
 
 	private final String resourceBase;
 
+	@Nullable
+	private final Map<String, String> initParams;
+
 	private ServletContextHandler contextHandler;
 
 	public ServicePublisherServletService(final ServicePublisherImpl servicePublisher,
 										  final String contextPath,
-										  final String resourceBase) {
+										  final String resourceBase,
+										  @Nullable final Map<String, String> initParams) {
 		this.servicePublisher = servicePublisher;
 		this.contextPath = contextPath;
 		this.resourceBase = resourceBase;
+		this.initParams = initParams;
 	}
 
 	@Override
@@ -45,10 +53,13 @@ public class ServicePublisherServletService extends AbstractService implements S
 			contextHandler.setResourceBase(resourceBase);
 			contextHandler.setClassLoader(Thread.currentThread().getContextClassLoader());
 			contextHandler.addServlet(DefaultServlet.class, "/");
-			contextHandler.addServlet(JspServlet.class, "*.jsp").setInitParameter(
-					"classpath",
-					contextHandler.getClassPath()
-			);
+
+			final ServletHolder servletHolder = contextHandler.addServlet(JspServlet.class, "*.jsp");
+			if (initParams != null) {
+				servletHolder.setInitParameters(initParams);
+			}
+			servletHolder.setInitParameter("classpath", contextHandler.getClassPath());
+
 			servicePublisher.addHandler(contextHandler);
 			contextHandler.start();
 

@@ -6,8 +6,10 @@ import org.eclipse.jetty.websocket.WebSocketServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.core.Application;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
@@ -58,13 +60,20 @@ public abstract class ServicePublisherBase extends AbstractService implements Se
 
 	@Override
 	public ServicePublisherService createServletService(final String contextPath, final String resourceBase) {
-		final ServicePublisherService service = createServletServiceInternal(contextPath, resourceBase);
+		return createServletService(contextPath, resourceBase, null);
+	}
+
+	@Override
+	public ServicePublisherService createServletService(final String contextPath, final String resourceBase,
+														@Nullable final Map<String, String> initParams) {
+		final ServicePublisherService service = createServletServiceInternal(contextPath, resourceBase, initParams);
 		servicesUnpublished.add(service);
 		service.addListener(createServiceListener(service), sameThreadExecutor());
 		return service;
 	}
 
-	protected abstract ServicePublisherService createServletServiceInternal(String contextPath, String resourceBase);
+	protected abstract ServicePublisherService createServletServiceInternal(String contextPath, String resourceBase,
+																			final Map<String, String> initParams);
 
 	@Override
 	public ServicePublisherService createJaxRsService(final String contextPath, final Application application) {

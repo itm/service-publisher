@@ -17,6 +17,7 @@ import org.eclipse.jetty.websocket.WebSocketServlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.ws.rs.core.Application;
+import java.util.Map;
 
 @Singleton
 class ServicePublisherImpl extends ServicePublisherBase {
@@ -84,8 +85,9 @@ class ServicePublisherImpl extends ServicePublisherBase {
 	}
 
 	@Override
-	public ServicePublisherService createServletServiceInternal(final String contextPath, final String resourceBase) {
-		return new ServicePublisherServletService(this, contextPath, resourceBase);
+	public ServicePublisherService createServletServiceInternal(final String contextPath, final String resourceBase,
+																final Map<String, String> initParams) {
+		return new ServicePublisherServletService(this, contextPath, resourceBase, initParams);
 	}
 
 	String getAddress(final String contextPath) {
