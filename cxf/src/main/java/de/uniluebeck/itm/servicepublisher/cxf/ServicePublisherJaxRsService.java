@@ -10,6 +10,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.ws.rs.core.Application;
@@ -103,5 +104,11 @@ class ServicePublisherJaxRsService extends AbstractService implements ServicePub
 	@Override
 	public URI getURI() {
 		return URI.create(servicePublisher.getAddress(contextPath));
+	}
+
+	@Override
+	@Nullable
+	public ServletContextHandler getServletContextHandler() {
+		return contextHandler;
 	}
 }

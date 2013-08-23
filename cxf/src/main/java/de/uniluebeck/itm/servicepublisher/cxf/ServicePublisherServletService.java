@@ -93,4 +93,10 @@ public class ServicePublisherServletService extends AbstractService implements S
 	public URI getURI() {
 		return URI.create(servicePublisher.getAddress(contextPath));
 	}
+
+	@Nullable
+	@Override
+	public ServletContextHandler getServletContextHandler() {
+		return contextHandler;
+	}
 }

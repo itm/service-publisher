@@ -7,6 +7,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
+import javax.annotation.Nullable;
 import java.net.URI;
 
 public class ServicePublisherWebSocketService extends AbstractService implements ServicePublisherService {
@@ -62,5 +63,11 @@ public class ServicePublisherWebSocketService extends AbstractService implements
 	@Override
 	public URI getURI() {
 		return URI.create(servicePublisher.getAddress(contextPath));
+	}
+
+	@Nullable
+	@Override
+	public ServletContextHandler getServletContextHandler() {
+		return contextHandler;
 	}
 }

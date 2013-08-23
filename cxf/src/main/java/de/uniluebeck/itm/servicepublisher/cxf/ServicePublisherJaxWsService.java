@@ -2,9 +2,11 @@ package de.uniluebeck.itm.servicepublisher.cxf;
 
 import com.google.common.util.concurrent.AbstractService;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.xml.ws.Endpoint;
 import java.net.URI;
 
@@ -56,5 +58,11 @@ class ServicePublisherJaxWsService extends AbstractService implements ServicePub
 	@Override
 	public URI getURI() {
 		return URI.create(servicePublisher.getAddress("/soap" + contextPath));
+	}
+
+	@Nullable
+	@Override
+	public ServletContextHandler getServletContextHandler() {
+		return null;
 	}
 }
