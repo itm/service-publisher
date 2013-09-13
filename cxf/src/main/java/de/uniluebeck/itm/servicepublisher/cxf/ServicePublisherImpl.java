@@ -9,9 +9,11 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
 import javax.servlet.ServletConfig;
@@ -36,7 +38,13 @@ class ServicePublisherImpl extends ServicePublisherBase {
 		System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, "org.apache.cxf.bus.CXFBusFactory");
 
 		// Start up the jetty embedded server
-		server = new org.eclipse.jetty.server.Server(config.getPort());
+		SelectChannelConnector connector = new SelectChannelConnector();
+		connector.setThreadPool(new QueuedThreadPool());
+		connector.setPort(config.getPort());
+
+		server = new org.eclipse.jetty.server.Server();
+		server.addConnector(connector);
+
 		contextHandlerCollection = new ContextHandlerCollection();
 		server.setHandler(contextHandlerCollection);
 
