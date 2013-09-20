@@ -54,6 +54,8 @@ public class ServicePublisherServletService extends AbstractService implements S
 			contextHandler.setClassLoader(Thread.currentThread().getContextClassLoader());
 			contextHandler.addServlet(DefaultServlet.class, "/");
 
+			servicePublisher.addShiroFiltersIfConfigured(contextHandler);
+
 			final ServletHolder servletHolder = contextHandler.addServlet(JspServlet.class, "*.jsp");
 			if (initParams != null) {
 				servletHolder.setInitParameters(initParams);

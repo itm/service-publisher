@@ -8,17 +8,24 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.config.IniSecurityManagerFactory;
+import org.apache.shiro.web.env.EnvironmentLoaderListener;
+import org.apache.shiro.web.servlet.ShiroFilter;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.ws.rs.core.Application;
+import java.util.EnumSet;
 import java.util.Map;
 
 @Singleton
@@ -52,7 +59,27 @@ class ServicePublisherImpl extends ServicePublisherBase {
 		soapContext.setContextPath("/soap");
 		soapContext.setSessionHandler(new SessionHandler());
 
-		CXFNonSpringServlet cxfServlet = new CXFNonSpringServlet() {
+		if (config.getShiroIni() != null && !"".equals(config.getShiroIni())) {
+
+			SecurityUtils.setSecurityManager(new IniSecurityManagerFactory(config.getShiroIni()).getInstance());
+
+			final FilterHolder filterHolder = new FilterHolder();
+			filterHolder.setDisplayName("ShiroFilter");
+			filterHolder.setHeldClass(ShiroFilter.class);
+			soapContext.setInitParameter("shiroConfigLocations", "file:" + config.getShiroIni());
+
+			soapContext.addFilter(filterHolder, "/*", EnumSet.of(
+					DispatcherType.ASYNC,
+					DispatcherType.ERROR,
+					DispatcherType.FORWARD,
+					DispatcherType.INCLUDE,
+					DispatcherType.REQUEST
+			)
+			);
+			soapContext.addEventListener(new EnvironmentLoaderListener());
+		}
+
+		final CXFNonSpringServlet cxfServlet = new CXFNonSpringServlet() {
 			@Override
 			public void init(final ServletConfig sc) throws ServletException {
 				super.init(sc);
@@ -82,13 +109,14 @@ class ServicePublisherImpl extends ServicePublisherBase {
 	}
 
 	@Override
-	protected ServicePublisherService createJaxRsServiceInternal(final String contextPath, final Application application) {
+	protected ServicePublisherService createJaxRsServiceInternal(final String contextPath,
+																 final Application application) {
 		return new ServicePublisherJaxRsService(this, contextPath, application);
 	}
 
 	@Override
 	protected ServicePublisherService createWebSocketServiceInternal(final String contextPath,
-													 final WebSocketServlet webSocketServlet) {
+																	 final WebSocketServlet webSocketServlet) {
 		return new ServicePublisherWebSocketService(this, contextPath, webSocketServlet);
 	}
 
@@ -108,5 +136,27 @@ class ServicePublisherImpl extends ServicePublisherBase {
 
 	public void removeHandler(final ServletContextHandler contextHandler) {
 		contextHandlerCollection.removeHandler(contextHandler);
+	}
+
+	protected void addShiroFiltersIfConfigured(final ServletContextHandler servletContextHandler) {
+
+		if (config.getShiroIni() != null && !"".equals(config.getShiroIni())) {
+
+			servletContextHandler.setInitParameter("shiroConfigLocations", "file:" + config.getShiroIni());
+
+			final FilterHolder filterHolder = new FilterHolder();
+			filterHolder.setDisplayName("ShiroFilter");
+			filterHolder.setHeldClass(ShiroFilter.class);
+			filterHolder.setInitParameter("shiroConfigLocations", "file:" + config.getShiroIni());
+
+			servletContextHandler.addFilter(filterHolder, "/*", EnumSet.of(
+					DispatcherType.ASYNC,
+					DispatcherType.ERROR,
+					DispatcherType.FORWARD,
+					DispatcherType.INCLUDE,
+					DispatcherType.REQUEST
+			));
+			servletContextHandler.addEventListener(new EnvironmentLoaderListener());
+		}
 	}
 }

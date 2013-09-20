@@ -38,7 +38,7 @@ public abstract class ServicePublisherBase extends AbstractService implements Se
 			log.info("Started server on port {}", config.getPort());
 			notifyStarted();
 		} catch (Exception e) {
-			log.error("Failed to start server on port {} due to the following error: " + e, e);
+			log.error("Failed to start server on port " + config.getPort() + " due to the following error: ", e);
 			notifyFailed(e);
 		}
 	}
