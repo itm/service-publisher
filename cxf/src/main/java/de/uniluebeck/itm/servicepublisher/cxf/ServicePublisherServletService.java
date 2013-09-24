@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.net.URI;
 import java.util.Map;
 
@@ -26,6 +27,9 @@ public class ServicePublisherServletService extends AbstractService implements S
 	private final String resourceBase;
 
 	@Nullable
+	private final File shiroIni;
+
+	@Nullable
 	private final Map<String, String> initParams;
 
 	private ServletContextHandler contextHandler;
@@ -33,10 +37,12 @@ public class ServicePublisherServletService extends AbstractService implements S
 	public ServicePublisherServletService(final ServicePublisherImpl servicePublisher,
 										  final String contextPath,
 										  final String resourceBase,
+										  @Nullable final File shiroIni,
 										  @Nullable final Map<String, String> initParams) {
 		this.servicePublisher = servicePublisher;
 		this.contextPath = contextPath;
 		this.resourceBase = resourceBase;
+		this.shiroIni = shiroIni;
 		this.initParams = initParams;
 	}
 
@@ -54,7 +60,7 @@ public class ServicePublisherServletService extends AbstractService implements S
 			contextHandler.setClassLoader(Thread.currentThread().getContextClassLoader());
 			contextHandler.addServlet(DefaultServlet.class, "/");
 
-			servicePublisher.addShiroFiltersIfConfigured(contextHandler);
+			servicePublisher.addShiroFiltersIfNotNull(contextHandler, shiroIni);
 
 			final ServletHolder servletHolder = contextHandler.addServlet(JspServlet.class, "*.jsp");
 			if (initParams != null) {

@@ -44,6 +44,16 @@
 			<artifactId>javax.ws.rs-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.snaa</artifactId>
+			<version>0.9-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-c3p0</artifactId>
+			<version>4.2.4.Final</version>
+		</dependency>
+		<dependency>
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
 			<artifactId>service-publisher-api</artifactId>
 		</dependency>

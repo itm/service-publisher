@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.core.Application;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -59,52 +60,74 @@ public abstract class ServicePublisherBase extends AbstractService implements Se
 	protected abstract void doStopInternal() throws Exception;
 
 	@Override
-	public ServicePublisherService createServletService(final String contextPath, final String resourceBase) {
-		return createServletService(contextPath, resourceBase, null);
+	public ServicePublisherService createServletService(final String contextPath,
+														final String resourceBase,
+														@Nullable final File shiroIni) {
+		return createServletService(contextPath, resourceBase, shiroIni, null);
 	}
 
 	@Override
-	public ServicePublisherService createServletService(final String contextPath, final String resourceBase,
+	public ServicePublisherService createServletService(final String contextPath,
+														final String resourceBase,
+														@Nullable final File shiroIni,
 														@Nullable final Map<String, String> initParams) {
-		final ServicePublisherService service = createServletServiceInternal(contextPath, resourceBase, initParams);
+		final ServicePublisherService service = createServletServiceInternal(
+				contextPath,
+				resourceBase,
+				shiroIni,
+				initParams
+		);
 		servicesUnpublished.add(service);
 		service.addListener(createServiceListener(service), sameThreadExecutor());
 		return service;
 	}
 
-	protected abstract ServicePublisherService createServletServiceInternal(String contextPath, String resourceBase,
+	protected abstract ServicePublisherService createServletServiceInternal(final String contextPath,
+																			final String resourceBase,
+																			@Nullable final File shiroIni,
 																			final Map<String, String> initParams);
 
 	@Override
-	public ServicePublisherService createJaxRsService(final String contextPath, final Application application) {
-		final ServicePublisherService service = createJaxRsServiceInternal(contextPath, application);
+	public ServicePublisherService createJaxRsService(final String contextPath,
+													  final Application application,
+													  @Nullable File shiroIni) {
+		final ServicePublisherService service = createJaxRsServiceInternal(contextPath, application, shiroIni);
 		servicesUnpublished.add(service);
 		service.addListener(createServiceListener(service), sameThreadExecutor());
 		return service;
 	}
 
-	protected abstract ServicePublisherService createJaxRsServiceInternal(final String contextPath, final Application application);
+	protected abstract ServicePublisherService createJaxRsServiceInternal(final String contextPath,
+																		  final Application application,
+																		  @Nullable final File shiroIni);
 
 	@Override
-	public ServicePublisherService createJaxWsService(final String contextPath, final Object endpointImpl) {
-		final ServicePublisherService service = createJaxWsServiceInternal(contextPath, endpointImpl);
+	public ServicePublisherService createJaxWsService(final String contextPath,
+													  final Object endpointImpl,
+													  @Nullable final File shiroIni) {
+		final ServicePublisherService service = createJaxWsServiceInternal(contextPath, endpointImpl, shiroIni);
 		servicesUnpublished.add(service);
 		service.addListener(createServiceListener(service), sameThreadExecutor());
 		return service;
 	}
 
-	protected abstract ServicePublisherService createJaxWsServiceInternal(final String contextPath, final Object endpointImpl);
+	protected abstract ServicePublisherService createJaxWsServiceInternal(final String contextPath,
+																		  final Object endpointImpl,
+																		  @Nullable final File shiroIni);
 
 	@Override
-	public ServicePublisherService createWebSocketService(final String contextPath, final WebSocketServlet webSocketServlet) {
-		final ServicePublisherService service = createWebSocketServiceInternal(contextPath, webSocketServlet);
+	public ServicePublisherService createWebSocketService(final String contextPath,
+														  final WebSocketServlet webSocketServlet,
+														  @Nullable final File shiroIni) {
+		final ServicePublisherService service = createWebSocketServiceInternal(contextPath, webSocketServlet, shiroIni);
 		servicesUnpublished.add(service);
 		service.addListener(createServiceListener(service), sameThreadExecutor());
 		return service;
 	}
 
 	protected abstract ServicePublisherService createWebSocketServiceInternal(final String contextPath,
-															  final WebSocketServlet webSocketServlet);
+																			  final WebSocketServlet webSocketServlet,
+																			  @Nullable final File shiroIni);
 
 	protected Service.Listener createServiceListener(final Service service) {
 		return new Service.Listener() {

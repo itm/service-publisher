@@ -8,6 +8,8 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.util.logging.Logging;
 
+import java.io.File;
+
 public class Demo {
 
 	static {
@@ -29,17 +31,20 @@ public class Demo {
 		final ServicePublisherFactory factory = Guice.createInjector(module).getInstance(ServicePublisherFactory.class);
 		final ServicePublisher servicePublisher = factory.create(config);
 
-		servicePublisher.createServletService("/", Demo.class.getResource("/rootcontext").toString());
-		servicePublisher.createServletService("/subcontext", Demo.class.getResource("/subcontext").toString());
+		final File shiroIni = new File("/Coding/service-publisher/demo/shiro.ini");
+		final File shiroSubcontextIni = new File("/Coding/service-publisher/demo/shiro_subcontext.ini");
 
-		servicePublisher.createJaxRsService("/rest/v1.0", new DemoRestApplication());
-		servicePublisher.createJaxRsService("/rest/v2.0", new DemoRestApplication2());
+		servicePublisher.createServletService("/", Demo.class.getResource("/rootcontext").toString(), shiroIni);
+		servicePublisher.createServletService("/subcontext", Demo.class.getResource("/subcontext").toString(), shiroSubcontextIni);
 
-		servicePublisher.createJaxWsService("/v1.0", new DemoSoapService());
-		servicePublisher.createJaxWsService("/v2.0", new DemoSoapService2());
+		servicePublisher.createJaxRsService("/rest/v1.0", new DemoRestApplication(), null);
+		servicePublisher.createJaxRsService("/rest/v2.0", new DemoRestApplication2(), null);
 
-		servicePublisher.createWebSocketService("/ws/v1.0", new DemoWebSocketServlet());
-		servicePublisher.createWebSocketService("/ws/v2.0", new DemoWebSocketServlet());
+		servicePublisher.createJaxWsService("/soap/v1.0", new DemoSoapService(), null);
+		servicePublisher.createJaxWsService("/soap/v2.0", new DemoSoapService2(), null);
+
+		servicePublisher.createWebSocketService("/ws/v1.0", new DemoWebSocketServlet(), null);
+		servicePublisher.createWebSocketService("/ws/v2.0", new DemoWebSocketServlet(), null);
 
 		servicePublisher.startAndWait();
 

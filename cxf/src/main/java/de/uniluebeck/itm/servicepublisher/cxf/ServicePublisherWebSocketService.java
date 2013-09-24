@@ -8,6 +8,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.net.URI;
 
 public class ServicePublisherWebSocketService extends AbstractService implements ServicePublisherService {
@@ -18,14 +19,19 @@ public class ServicePublisherWebSocketService extends AbstractService implements
 
 	private final WebSocketServlet webSocketServlet;
 
+	@Nullable
+	private final File shiroIni;
+
 	private ServletContextHandler contextHandler;
 
 	ServicePublisherWebSocketService(final ServicePublisherImpl servicePublisher,
 									 final String contextPath,
-									 final WebSocketServlet webSocketServlet) {
+									 final WebSocketServlet webSocketServlet,
+									 @Nullable final File shiroIni) {
 		this.servicePublisher = servicePublisher;
 		this.contextPath = contextPath;
 		this.webSocketServlet = webSocketServlet;
+		this.shiroIni = shiroIni;
 	}
 
 	@Override
@@ -40,7 +46,7 @@ public class ServicePublisherWebSocketService extends AbstractService implements
 			contextHandler.setClassLoader(Thread.currentThread().getContextClassLoader());
 			contextHandler.addServlet(servletHolder, "/*");
 
-			servicePublisher.addShiroFiltersIfConfigured(contextHandler);
+			servicePublisher.addShiroFiltersIfNotNull(contextHandler, shiroIni);
 
 			servicePublisher.addHandler(contextHandler);
 			contextHandler.start();

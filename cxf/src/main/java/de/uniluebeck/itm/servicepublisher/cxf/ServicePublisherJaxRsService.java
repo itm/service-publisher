@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.ws.rs.core.Application;
+import java.io.File;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -30,14 +31,19 @@ class ServicePublisherJaxRsService extends AbstractService implements ServicePub
 
 	private final Application application;
 
+	@Nullable
+	private final File shiroIni;
+
 	private ServletContextHandler contextHandler;
 
 	public ServicePublisherJaxRsService(final ServicePublisherImpl servicePublisher,
 										final String contextPath,
-										final Application application) {
+										final Application application,
+										@Nullable final File shiroIni) {
 		this.servicePublisher = servicePublisher;
 		this.contextPath = contextPath;
 		this.application = application;
+		this.shiroIni = shiroIni;
 	}
 
 	@Override
@@ -73,7 +79,7 @@ class ServicePublisherJaxRsService extends AbstractService implements ServicePub
 			contextHandler.setClassLoader(Thread.currentThread().getContextClassLoader());
 			contextHandler.addServlet(servletHolder, "/*");
 
-			servicePublisher.addShiroFiltersIfConfigured(contextHandler);
+			servicePublisher.addShiroFiltersIfNotNull(contextHandler, shiroIni);
 
 			servicePublisher.addHandler(contextHandler);
 			contextHandler.start();
