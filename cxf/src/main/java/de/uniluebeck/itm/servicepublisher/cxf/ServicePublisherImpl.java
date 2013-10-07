@@ -22,6 +22,7 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.ws.rs.core.Application;
@@ -122,8 +123,9 @@ class ServicePublisherImpl extends ServicePublisherBase {
 
 	@Override
 	public ServicePublisherService createServletServiceInternal(final String contextPath, final String resourceBase,
-																final Map<String, String> initParams) {
-		return new ServicePublisherServletService(this, contextPath, resourceBase, initParams);
+																final Map<String, String> initParams,
+																final Filter... filters) {
+		return new ServicePublisherServletService(this, contextPath, resourceBase, initParams, filters);
 	}
 
 	String getAddress(final String contextPath) {

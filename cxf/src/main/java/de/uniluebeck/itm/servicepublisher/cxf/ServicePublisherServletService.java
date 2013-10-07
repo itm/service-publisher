@@ -5,6 +5,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import org.apache.jasper.servlet.JspServlet;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
@@ -12,7 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
 import java.net.URI;
+import java.util.EnumSet;
 import java.util.Map;
 
 public class ServicePublisherServletService extends AbstractService implements ServicePublisherService {
@@ -28,16 +32,20 @@ public class ServicePublisherServletService extends AbstractService implements S
 	@Nullable
 	private final Map<String, String> initParams;
 
+	private final Filter[] filters;
+
 	private ServletContextHandler contextHandler;
 
 	public ServicePublisherServletService(final ServicePublisherImpl servicePublisher,
 										  final String contextPath,
 										  final String resourceBase,
-										  @Nullable final Map<String, String> initParams) {
+										  @Nullable final Map<String, String> initParams,
+										  final Filter... filters) {
 		this.servicePublisher = servicePublisher;
 		this.contextPath = contextPath;
 		this.resourceBase = resourceBase;
 		this.initParams = initParams;
+		this.filters = filters;
 	}
 
 	@Override
@@ -53,6 +61,10 @@ public class ServicePublisherServletService extends AbstractService implements S
 			contextHandler.setResourceBase(resourceBase);
 			contextHandler.setClassLoader(Thread.currentThread().getContextClassLoader());
 			contextHandler.addServlet(DefaultServlet.class, "/");
+
+			for (Filter filter : filters) {
+				contextHandler.addFilter(new FilterHolder(filter), "*", EnumSet.allOf(DispatcherType.class));
+			}
 
 			servicePublisher.addShiroFiltersIfConfigured(contextHandler);
 

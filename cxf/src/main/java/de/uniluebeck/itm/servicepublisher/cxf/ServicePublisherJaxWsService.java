@@ -34,12 +34,15 @@ class ServicePublisherJaxWsService extends AbstractService implements ServicePub
 	protected void doStart() {
 		try {
 
-			log.info("Publishing SOAP web service {} under context path /soap{}", endpointImpl.getClass().getSimpleName(),
+			log.info(
+					"Publishing SOAP web service {} under context path /soap{}",
+					endpointImpl.getClass().getSimpleName(),
 					contextPath
 			);
-			endpoint = Endpoint.publish(contextPath, endpointImpl);
 
+			endpoint = Endpoint.publish(contextPath, endpointImpl);
 			notifyStarted();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}

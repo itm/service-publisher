@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.servlet.Filter;
 import javax.ws.rs.core.Application;
 import java.util.List;
 import java.util.Map;
@@ -65,15 +66,17 @@ public abstract class ServicePublisherBase extends AbstractService implements Se
 
 	@Override
 	public ServicePublisherService createServletService(final String contextPath, final String resourceBase,
-														@Nullable final Map<String, String> initParams) {
-		final ServicePublisherService service = createServletServiceInternal(contextPath, resourceBase, initParams);
+														@Nullable final Map<String, String> initParams,
+														final Filter... filters) {
+		final ServicePublisherService service = createServletServiceInternal(contextPath, resourceBase, initParams, filters);
 		servicesUnpublished.add(service);
 		service.addListener(createServiceListener(service), sameThreadExecutor());
 		return service;
 	}
 
 	protected abstract ServicePublisherService createServletServiceInternal(String contextPath, String resourceBase,
-																			final Map<String, String> initParams);
+																			final Map<String, String> initParams,
+																			final Filter... filters);
 
 	@Override
 	public ServicePublisherService createJaxRsService(final String contextPath, final Application application) {
