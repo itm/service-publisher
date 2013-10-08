@@ -7,7 +7,6 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherBase;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.web.env.EnvironmentLoaderListener;
@@ -17,20 +16,17 @@ import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.ws.rs.core.Application;
 import java.util.EnumSet;
 import java.util.Map;
 
 @Singleton
-class ServicePublisherImpl extends ServicePublisherBase {
+public class ServicePublisherImpl extends ServicePublisherBase {
 
 	private final ContextHandlerCollection contextHandlerCollection;
 
@@ -80,6 +76,7 @@ class ServicePublisherImpl extends ServicePublisherBase {
 			soapContext.addEventListener(new EnvironmentLoaderListener());
 		}
 
+		/*
 		final CXFNonSpringServlet cxfServlet = new CXFNonSpringServlet() {
 			@Override
 			public void init(final ServletConfig sc) throws ServletException {
@@ -88,6 +85,7 @@ class ServicePublisherImpl extends ServicePublisherBase {
 			}
 		};
 		soapContext.addServlet(new ServletHolder(cxfServlet), "/*");
+		*/
 
 		addHandler(soapContext);
 	}
@@ -160,5 +158,9 @@ class ServicePublisherImpl extends ServicePublisherBase {
 			));
 			servletContextHandler.addEventListener(new EnvironmentLoaderListener());
 		}
+	}
+
+	public ServletContextHandler getSoapContext() {
+		return soapContext;
 	}
 }

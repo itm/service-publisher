@@ -3,6 +3,7 @@ package de.uniluebeck.itm.servicepublisher.cxf;
 import com.google.common.util.concurrent.AbstractService;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,13 +35,18 @@ class ServicePublisherJaxWsService extends AbstractService implements ServicePub
 	protected void doStart() {
 		try {
 
+			final ServicePublisherCxfServlet cxfServlet = new ServicePublisherCxfServlet("", endpointImpl);
+
 			log.info(
 					"Publishing SOAP web service {} under context path /soap{}",
 					endpointImpl.getClass().getSimpleName(),
 					contextPath
 			);
 
-			endpoint = Endpoint.publish(contextPath, endpointImpl);
+			final ServletHolder servlet = new ServletHolder(cxfServlet);
+			servicePublisher.getSoapContext().addServlet(servlet, contextPath);
+
+			//endpoint = Endpoint.publish(contextPath, endpointImpl);
 			notifyStarted();
 
 		} catch (Exception e) {

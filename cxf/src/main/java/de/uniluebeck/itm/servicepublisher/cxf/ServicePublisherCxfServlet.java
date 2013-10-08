@@ -12,12 +12,14 @@ public class ServicePublisherCxfServlet extends CXFNonSpringServlet {
 
 	private static final Logger log = LoggerFactory.getLogger(ServicePublisherCxfServlet.class);
 
-	private final String address;
+	private final String contextPath;
 
 	private final Object endpointImpl;
 
-	public ServicePublisherCxfServlet(final String address, final Object endpointImpl) {
-		this.address = address;
+	private Endpoint endpoint;
+
+	public ServicePublisherCxfServlet(final String contextPath, final Object endpointImpl) {
+		this.contextPath = contextPath;
 		this.endpointImpl = endpointImpl;
 	}
 
@@ -26,6 +28,10 @@ public class ServicePublisherCxfServlet extends CXFNonSpringServlet {
 		super.loadBus(servletConfig);
 		log.info("Loading CXF servlet...");
 		BusFactory.setDefaultBus(this.getBus());
-		Endpoint.publish(address, endpointImpl);
+		endpoint = Endpoint.publish(contextPath, endpointImpl);
+	}
+
+	public Endpoint getEndpoint() {
+		return endpoint;
 	}
 }
