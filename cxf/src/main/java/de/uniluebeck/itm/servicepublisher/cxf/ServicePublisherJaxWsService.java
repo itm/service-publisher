@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import javax.xml.ws.Endpoint;
 import java.net.URI;
 
 class ServicePublisherJaxWsService extends AbstractService implements ServicePublisherService {
@@ -21,7 +20,7 @@ class ServicePublisherJaxWsService extends AbstractService implements ServicePub
 
 	private final Object endpointImpl;
 
-	private Endpoint endpoint;
+	private ServletHolder servlet;
 
 	public ServicePublisherJaxWsService(final ServicePublisherImpl servicePublisher,
 										final String contextPath,
@@ -43,10 +42,9 @@ class ServicePublisherJaxWsService extends AbstractService implements ServicePub
 					contextPath
 			);
 
-			final ServletHolder servlet = new ServletHolder(cxfServlet);
+			servlet = new ServletHolder(cxfServlet);
 			servicePublisher.getSoapContext().addServlet(servlet, contextPath);
 
-			//endpoint = Endpoint.publish(contextPath, endpointImpl);
 			notifyStarted();
 
 		} catch (Exception e) {
@@ -57,7 +55,7 @@ class ServicePublisherJaxWsService extends AbstractService implements ServicePub
 	@Override
 	protected void doStop() {
 		try {
-			endpoint.stop();
+			servlet.stop();
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);
