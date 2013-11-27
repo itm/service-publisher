@@ -3,7 +3,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+	<groupId>de.uniluebeck.itm.service-publisher</groupId>
 	<artifactId>service-publisher-parent</artifactId>
 	<name>Service Publisher (parent)</name>
 	<description>An embedded HTTP server able to host WebSockets, JAX-RS and JAX-WS services</description>
@@ -31,22 +31,22 @@
 		<dependencies>
 
 			<dependency>
-				<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+				<groupId>de.uniluebeck.itm.service-publisher</groupId>
 				<artifactId>service-publisher-api</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+				<groupId>de.uniluebeck.itm.service-publisher</groupId>
 				<artifactId>service-publisher-demo</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+				<groupId>de.uniluebeck.itm.service-publisher</groupId>
 				<artifactId>service-publisher-jetty-metro-jersey</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+				<groupId>de.uniluebeck.itm.service-publisher</groupId>
 				<artifactId>service-publisher-cxf</artifactId>
 				<version>${project.version}</version>
 			</dependency>
