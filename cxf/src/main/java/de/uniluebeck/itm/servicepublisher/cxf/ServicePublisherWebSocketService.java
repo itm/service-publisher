@@ -40,9 +40,8 @@ public class ServicePublisherWebSocketService extends AbstractService implements
 			contextHandler.setClassLoader(Thread.currentThread().getContextClassLoader());
 			contextHandler.addServlet(servletHolder, "/*");
 
-			servicePublisher.addShiroFiltersIfConfigured(contextHandler);
-
 			servicePublisher.addHandler(contextHandler);
+
 			contextHandler.start();
 
 			notifyStarted();
