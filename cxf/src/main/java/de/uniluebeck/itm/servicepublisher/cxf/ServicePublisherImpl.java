@@ -7,9 +7,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherBase;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import org.apache.cxf.BusFactory;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.config.IniSecurityManagerFactory;
-import org.apache.shiro.web.env.EnvironmentLoaderListener;
+import org.apache.shiro.config.Ini;
 import org.apache.shiro.web.servlet.ShiroFilter;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -19,11 +17,14 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
+import javax.annotation.Nullable;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.ws.rs.core.Application;
 import java.util.EnumSet;
 import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Singleton
 public class ServicePublisherImpl extends ServicePublisherBase {
@@ -56,37 +57,6 @@ public class ServicePublisherImpl extends ServicePublisherBase {
 		soapContext.setContextPath("/soap");
 		soapContext.setSessionHandler(new SessionHandler());
 
-		if (config.getShiroIni() != null && !"".equals(config.getShiroIni())) {
-
-			SecurityUtils.setSecurityManager(new IniSecurityManagerFactory(config.getShiroIni()).getInstance());
-
-			final FilterHolder filterHolder = new FilterHolder();
-			filterHolder.setDisplayName("ShiroFilter");
-			filterHolder.setHeldClass(ShiroFilter.class);
-			soapContext.setInitParameter("shiroConfigLocations", "file:" + config.getShiroIni());
-
-			soapContext.addFilter(filterHolder, "/*", EnumSet.of(
-					DispatcherType.ASYNC,
-					DispatcherType.ERROR,
-					DispatcherType.FORWARD,
-					DispatcherType.INCLUDE,
-					DispatcherType.REQUEST
-			)
-			);
-			soapContext.addEventListener(new EnvironmentLoaderListener());
-		}
-
-		/*
-		final CXFNonSpringServlet cxfServlet = new CXFNonSpringServlet() {
-			@Override
-			public void init(final ServletConfig sc) throws ServletException {
-				super.init(sc);
-				BusFactory.setDefaultBus(getBus());
-			}
-		};
-		soapContext.addServlet(new ServletHolder(cxfServlet), "/*");
-		*/
-
 		addHandler(soapContext);
 	}
 
@@ -102,15 +72,17 @@ public class ServicePublisherImpl extends ServicePublisherBase {
 	}
 
 	@Override
-	protected ServicePublisherService createJaxWsServiceInternal(String contextPath, final Object endpointImpl) {
+	protected ServicePublisherService createJaxWsServiceInternal(String contextPath, final Object endpointImpl,
+																 @Nullable final Ini shiroIni) {
 		contextPath = contextPath.startsWith("/soap") ? contextPath.substring("/soap".length()) : contextPath;
-		return new ServicePublisherJaxWsService(this, contextPath, endpointImpl);
+		return new ServicePublisherJaxWsService(this, contextPath, endpointImpl, shiroIni);
 	}
 
 	@Override
 	protected ServicePublisherService createJaxRsServiceInternal(final String contextPath,
-																 final Application application) {
-		return new ServicePublisherJaxRsService(this, contextPath, application);
+																 final Application application,
+																 @Nullable final Ini shiroIni) {
+		return new ServicePublisherJaxRsService(this, contextPath, application, shiroIni);
 	}
 
 	@Override
@@ -122,8 +94,9 @@ public class ServicePublisherImpl extends ServicePublisherBase {
 	@Override
 	public ServicePublisherService createServletServiceInternal(final String contextPath, final String resourceBase,
 																final Map<String, String> initParams,
+																@Nullable final Ini shiroIni,
 																final Filter... filters) {
-		return new ServicePublisherServletService(this, contextPath, resourceBase, initParams, filters);
+		return new ServicePublisherServletService(this, contextPath, resourceBase, initParams, shiroIni, filters);
 	}
 
 	String getAddress(final String contextPath) {
@@ -138,26 +111,29 @@ public class ServicePublisherImpl extends ServicePublisherBase {
 		contextHandlerCollection.removeHandler(contextHandler);
 	}
 
-	protected void addShiroFiltersIfConfigured(final ServletContextHandler servletContextHandler) {
+	protected void addShiroFilter(final ServletContextHandler servletContextHandler, final Ini ini) {
 
-		if (config.getShiroIni() != null && !"".equals(config.getShiroIni())) {
+		checkNotNull(servletContextHandler);
+		checkNotNull(ini);
 
-			servletContextHandler.setInitParameter("shiroConfigLocations", "file:" + config.getShiroIni());
+		final ServicePublisherEnvironment environment = new ServicePublisherEnvironment(ini);
+		final ServicePublisherEnvironmentLoaderListener loaderListener =
+				new ServicePublisherEnvironmentLoaderListener(environment);
 
-			final FilterHolder filterHolder = new FilterHolder();
-			filterHolder.setDisplayName("ShiroFilter");
-			filterHolder.setHeldClass(ShiroFilter.class);
-			filterHolder.setInitParameter("shiroConfigLocations", "file:" + config.getShiroIni());
+		final FilterHolder filterHolder = new FilterHolder();
+		filterHolder.setDisplayName("ShiroFilter");
+		filterHolder.setHeldClass(ShiroFilter.class);
 
-			servletContextHandler.addFilter(filterHolder, "/*", EnumSet.of(
-					DispatcherType.ASYNC,
-					DispatcherType.ERROR,
-					DispatcherType.FORWARD,
-					DispatcherType.INCLUDE,
-					DispatcherType.REQUEST
-			));
-			servletContextHandler.addEventListener(new EnvironmentLoaderListener());
-		}
+		servletContextHandler.addFilter(filterHolder, "/*", EnumSet.of(
+				DispatcherType.ASYNC,
+				DispatcherType.ERROR,
+				DispatcherType.FORWARD,
+				DispatcherType.INCLUDE,
+				DispatcherType.REQUEST
+		)
+		);
+
+		servletContextHandler.addEventListener(loaderListener);
 	}
 
 	public ServletContextHandler getSoapContext() {

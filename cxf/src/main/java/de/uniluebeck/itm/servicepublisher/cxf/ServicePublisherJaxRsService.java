@@ -4,6 +4,8 @@ import com.google.common.util.concurrent.AbstractService;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import org.apache.cxf.jaxrs.provider.json.JSONProvider;
 import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
+import org.apache.shiro.config.Ini;
+import org.apache.shiro.util.CollectionUtils;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -30,14 +32,19 @@ class ServicePublisherJaxRsService extends AbstractService implements ServicePub
 
 	private final Application application;
 
+	@Nullable
+	private final Ini shiroIni;
+
 	private ServletContextHandler contextHandler;
 
 	public ServicePublisherJaxRsService(final ServicePublisherImpl servicePublisher,
 										final String contextPath,
-										final Application application) {
+										final Application application,
+										@Nullable final Ini shiroIni) {
 		this.servicePublisher = servicePublisher;
 		this.contextPath = contextPath;
 		this.application = application;
+		this.shiroIni = shiroIni;
 	}
 
 	@Override
@@ -73,7 +80,9 @@ class ServicePublisherJaxRsService extends AbstractService implements ServicePub
 			contextHandler.setClassLoader(Thread.currentThread().getContextClassLoader());
 			contextHandler.addServlet(servletHolder, "/*");
 
-			servicePublisher.addShiroFiltersIfConfigured(contextHandler);
+			if (shiroIni != null && !CollectionUtils.isEmpty(shiroIni)) {
+				servicePublisher.addShiroFilter(contextHandler, shiroIni);
+			}
 
 			servicePublisher.addHandler(contextHandler);
 			contextHandler.start();

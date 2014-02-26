@@ -29,14 +29,14 @@ public class Demo {
 		final ServicePublisherFactory factory = Guice.createInjector(module).getInstance(ServicePublisherFactory.class);
 		final ServicePublisher servicePublisher = factory.create(config);
 
-		servicePublisher.createServletService("/", Demo.class.getResource("/rootcontext").toString());
-		servicePublisher.createServletService("/subcontext", Demo.class.getResource("/subcontext").toString());
+		servicePublisher.createServletService("/", Demo.class.getResource("/rootcontext").toString(), null);
+		servicePublisher.createServletService("/subcontext", Demo.class.getResource("/subcontext").toString(), null);
 
-		servicePublisher.createJaxRsService("/rest/v1.0", new DemoRestApplication());
-		servicePublisher.createJaxRsService("/rest/v2.0", new DemoRestApplication2());
+		servicePublisher.createJaxRsService("/rest/v1.0", new DemoRestApplication(), null);
+		servicePublisher.createJaxRsService("/rest/v2.0", new DemoRestApplication2(), null);
 
-		servicePublisher.createJaxWsService("/soap/v1.0", new DemoSoapService());
-		servicePublisher.createJaxWsService("/soap/v2.0", new DemoSoapService2());
+		servicePublisher.createJaxWsService("/soap/v1.0", new DemoSoapService(), null);
+		servicePublisher.createJaxWsService("/soap/v2.0", new DemoSoapService2(), null);
 
 		servicePublisher.createWebSocketService("/ws/v1.0", new DemoWebSocketServlet());
 		servicePublisher.createWebSocketService("/ws/v2.0", new DemoWebSocketServlet());

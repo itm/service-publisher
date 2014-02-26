@@ -3,6 +3,8 @@ package de.uniluebeck.itm.servicepublisher.cxf;
 import com.google.common.util.concurrent.AbstractService;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import org.apache.jasper.servlet.JspServlet;
+import org.apache.shiro.config.Ini;
+import org.apache.shiro.util.CollectionUtils;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -32,6 +34,9 @@ public class ServicePublisherServletService extends AbstractService implements S
 	@Nullable
 	private final Map<String, String> initParams;
 
+	@Nullable
+	private final Ini shiroIni;
+
 	private final Filter[] filters;
 
 	private ServletContextHandler contextHandler;
@@ -40,11 +45,13 @@ public class ServicePublisherServletService extends AbstractService implements S
 										  final String contextPath,
 										  final String resourceBase,
 										  @Nullable final Map<String, String> initParams,
+										  @Nullable final Ini shiroIni,
 										  final Filter... filters) {
 		this.servicePublisher = servicePublisher;
 		this.contextPath = contextPath;
 		this.resourceBase = resourceBase;
 		this.initParams = initParams;
+		this.shiroIni = shiroIni;
 		this.filters = filters;
 	}
 
@@ -62,11 +69,13 @@ public class ServicePublisherServletService extends AbstractService implements S
 			contextHandler.setClassLoader(Thread.currentThread().getContextClassLoader());
 			contextHandler.addServlet(DefaultServlet.class, "/");
 
+			if (shiroIni != null && !CollectionUtils.isEmpty(shiroIni)) {
+				servicePublisher.addShiroFilter(contextHandler, shiroIni);
+			}
+
 			for (Filter filter : filters) {
 				contextHandler.addFilter(new FilterHolder(filter), "*", EnumSet.allOf(DispatcherType.class));
 			}
-
-			servicePublisher.addShiroFiltersIfConfigured(contextHandler);
 
 			final ServletHolder servletHolder = contextHandler.addServlet(JspServlet.class, "*.jsp");
 			if (initParams != null) {
