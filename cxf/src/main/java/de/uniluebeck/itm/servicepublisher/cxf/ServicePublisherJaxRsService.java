@@ -2,8 +2,11 @@ package de.uniluebeck.itm.servicepublisher.cxf;
 
 import com.google.common.util.concurrent.AbstractService;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.provider.json.JSONProvider;
 import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
+import org.apache.cxf.jaxrs.utils.ResourceUtils;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.shiro.config.Ini;
 import org.apache.shiro.util.CollectionUtils;
 import org.eclipse.jetty.server.session.SessionHandler;
@@ -64,12 +67,30 @@ class ServicePublisherJaxRsService extends AbstractService implements ServicePub
 					// workaround to not have CXF try to create the application instance but pass in one
 					return application;
 				}
+
+				protected void createServerFromApplication(String cName, ServletConfig servletConfig,
+														   String splitChar)
+						throws ServletException {
+					String ignoreParam = servletConfig.getInitParameter("jaxrs.application.address.ignore");
+					JAXRSServerFactoryBean bean = ResourceUtils.createApplication(application,
+							MessageUtils.isTrue(ignoreParam),
+							getStaticSubResolutionValue(servletConfig)
+					);
+					setAllInterceptors(bean, servletConfig, splitChar);
+					setInvoker(bean, servletConfig);
+					setExtensions(bean, servletConfig);
+					setDocLocation(bean, servletConfig);
+					setSchemasLocations(bean, servletConfig);
+
+					bean.setBus(getBus());
+					bean.create();
+				}
 			};
 
 			final ServletHolder servletHolder = new ServletHolder(jaxrsServlet);
 
 			final Map<String, String> params = newHashMap();
-			params.put("javax.ws.rs.Application", application.getClass().getCanonicalName());
+			params.put("javax.ws.rs.Application", "IGNORED_BY_OVERRIDDEN_METHOD_CREATE_SERVER_FROM_APPLICATION");
 			params.put("jaxrs.extensions", "xml=application/xml\njson=application/json");
 			params.put("jaxrs.providers", JSONProvider.class.getCanonicalName());
 			servletHolder.setInitParameters(params);
@@ -87,8 +108,6 @@ class ServicePublisherJaxRsService extends AbstractService implements ServicePub
 			servicePublisher.addHandler(contextHandler);
 			contextHandler.start();
 
-			servicePublisher.addHandler(contextHandler);
-
 			notifyStarted();
 
 		} catch (Exception e) {
@@ -103,6 +122,7 @@ class ServicePublisherJaxRsService extends AbstractService implements ServicePub
 
 		try {
 
+			contextHandler.stop();
 			servicePublisher.removeHandler(contextHandler);
 
 			notifyStopped();
