@@ -35,7 +35,7 @@ public abstract class ServicePublisherBase extends AbstractService implements Se
 		try {
 			doStartInternal();
 			for (Service service : newArrayList(servicesUnpublished)) {
-				service.startAndWait();
+				service.startAsync().awaitRunning();
 			}
 			log.info("Started server on port {}", config.getPort());
 			notifyStarted();

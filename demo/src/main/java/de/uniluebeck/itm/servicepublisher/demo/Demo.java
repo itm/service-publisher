@@ -41,14 +41,14 @@ public class Demo {
 		servicePublisher.createWebSocketService("/ws/v1.0", new DemoWebSocketServlet());
 		servicePublisher.createWebSocketService("/ws/v2.0", new DemoWebSocketServlet());
 
-		servicePublisher.startAndWait();
+		servicePublisher.startAsync().awaitRunning();
 
 
 		Runtime.getRuntime().addShutdownHook(
 				new Thread("Demo-ShutdownThread") {
 					@Override
 					public void run() {
-						servicePublisher.stopAndWait();
+						servicePublisher.stopAsync().awaitTerminated();
 					}
 				}
 		);
