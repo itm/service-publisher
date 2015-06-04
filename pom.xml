@@ -181,12 +181,12 @@
 			<dependency>
 				<groupId>com.google.inject</groupId>
 				<artifactId>guice</artifactId>
-				<version>3.0</version>
+				<version>4.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.inject.extensions</groupId>
 				<artifactId>guice-assistedinject</artifactId>
-				<version>3.0</version>
+				<version>4.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.code.findbugs</groupId>
@@ -270,7 +270,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>1.3.1</version>
+				<version>1.4</version>
 				<executions>
 					<execution>
 						<id>enforce</id>

@@ -26,7 +26,6 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@Singleton
 public class ServicePublisherImpl extends ServicePublisherBase {
 
 	private final ContextHandlerCollection contextHandlerCollection;
